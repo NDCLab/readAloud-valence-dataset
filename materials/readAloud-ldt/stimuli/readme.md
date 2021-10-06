@@ -33,8 +33,8 @@ This folder contains the following:
 |len-syll-neg |manual extraction | Number of syllables in the negative portion of the passage |
 |pos-avg-WAR |Warriner et al. (2013) {from ELP} | Average valence rating of word lemmas in the positive portion of the passage. Used as preliminary indicator during drafting of valenced passages. |
 |neg-avg-WAR |Warriner et al. (2013) {from ELP} | Average valence rating of word lemmas in the negative portion of the passage. Used as preliminary indicator during drafting of valenced passages. |
-|pos-strength-WAR |manual calculation | Distance between pos-avg-WAR and the average of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
-|neg-strength-WAR |manual calculation | Distance between neg-avg-WAR and the average of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
+|pos-strength-WAR |manual calculation | Distance between pos-avg-WAR and the median of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
+|neg-strength-WAR |manual calculation | Distance between neg-avg-WAR and the median of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
 
 
 ### (Sub)Lexical Characteristics: Primary Interest
@@ -44,7 +44,7 @@ All characteristics are drawn from the lemma unless otherwise noted.  For charac
 | characteristics | resource | notes |
 |:-- | :-- | :-- |
 | valence | Kousta et al. (2009) rating (-kousta); ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR); Glasgow Norms (-GLAS)| Valence indicates the rating of the word on a scale from negative/unhappy to positive/happy.  The categorical rating attributed to Kousta et al. (2009) here is indicative of how stimuli were selected in their experimental setup; note, however, that in their analyses they used an extension of the ANEW ratings that provided a more normal frequency distribution across the valence spectrum than ANEW alone.  Subsequent work has found that the Warriner et al. (2013) ratings are more closely aligned with natural language.  Glasgow TBD. Scales: ANEW: from 1 (unhappy) to 9 (happy); Warriner: from 1 (unhappy) to 9 (happy); Glasgow: TBD |
-| valence-strength-WAR | distance from neutral, median valence rating of 5.06| According to Warriner et al. (2013), more extremely valenced words tend to display less variability in their ratings than neutral words; therefore, words with higher values for valence-strength-WAR are likely to be more reliable than words with lower values. The median of the "V.Mean.Sum" column of data in the Warriner et al. (2013) dataset was calculated using the median() function in Microsoft Excel 16.52. |
+| valence-strength-WAR | distance from neutral, median valence rating of 5.2| According to Warriner et al. (2013), more extremely valenced words tend to display less variability in their ratings than neutral words; therefore, words with higher values for valence-strength-WAR are likely to be more reliable than words with lower values. The median of the "V.Mean.Sum" column of data in the Warriner et al. (2013) dataset was calculated using the median() function in Microsoft Excel 16.52. |
 | log-freq | HAL corpus {from ELP} (-HAL); SUBTLEX corpus {from ELP} (-SUB) | The log of the frequency of the word in the HAL corpus or SUBTLEX corpus, respectively. |
 | no-syll | English Lexicon Project | Number of syllables in the main pronunciation of the (full) word. |
 | no-lett | len() formula in Excel | Number of letters in the American spelling of the (full) word. |
