@@ -8,7 +8,11 @@
 library(lubridate)
 
 #read in coded file, drop coding column 1, name rows, assign numbers to columns
-df <- read.csv("example_mantis.csv")
+path <- '/Users/jessraissouni/github/readAloud-valence-dataset/code/'
+filename <- 'example_mantis'
+ext <- '.csv'
+df <- read.csv(paste(path,filename,ext, sep = "", collapse = NULL))
+
 df <- df[-c(1)]
 rownames(df) <- c("hesitate", "mispronounce", "duplicate", "drop", "onset", "end")
 colnames(df) <- c(1:ncol(df))
@@ -187,4 +191,5 @@ output <- data.frame("first_half_length" = c(first_half_length),
                     "error_drop_post" = c(error_drop_post)
                     )
 
-write.csv(output, "~/github/readAloud-valence-dataset/derivatives/preprocessed/example_mantis-output.csv", row.names=FALSE)
+output_path <- '/Users/jessraissouni/github/readAloud-valence-dataset/derivatives/preprocessed/'
+write.csv(output, paste(output_path,filename,"_preproc_", today(), ext, sep = "", collapse = NULL), row.names=FALSE)
