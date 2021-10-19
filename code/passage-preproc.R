@@ -1,7 +1,7 @@
-#title: "syllabic-coding.R"
+#title: "passage-preproc.R"
 #author: "Jessica M. Alexander"
 #input: coded mantis file (XLSX)
-#output: preprocessed mantis file (CSV), in derivates/preprocessed/ folder
+#output: preprocessed mantis file (CSV), in data-monitoring/postprocessing-check/ folder
 
 
 #set up libraries
@@ -9,14 +9,14 @@ library(lubridate)
 library(readxl)
 
 #READ IN THE CODED FILE AND ESTABLISH TWO DATAFRAMES, ERRORS AND TIMING
-path <- '/Users/jessraissouni/github/readAloud-valence-dataset/code/'
+path <- '~/github/readAloud-valence-dataset/code/'
 subject <- 190001
 filename <- paste("sub-", subject, sep = "", collapse = NULL)
 ext <- '.xlsx'
 passage = "mantis"
-df <- data.frame(read_excel(paste(path,filename,ext, sep = "", collapse = NULL), sheet = passage, range="b2:zz8"))
 
 #select error cells, re-name rows, assign numbers to columns (aka syllables)
+df <- data.frame(read_excel(paste(path,filename,ext, sep = "", collapse = NULL), sheet = passage, range="b2:zz8"))
 df <- df[-c(5),] #remove correction row
 rownames(df) <- c("hesitate", "insert", "mispronounce", "drop", "duplicate")
 colnames(df) <- c(1:ncol(df))
@@ -203,5 +203,5 @@ output <- data.frame("subject" = c(subject),
                      "error_dup_post" = c(error_dup_post)
 )
 
-output_path <- '/Users/jessraissouni/github/readAloud-valence-dataset/data-monitoring/postprocessing-check/'
+output_path <- '~/github/readAloud-valence-dataset/data-monitoring/postprocessing-check/'
 write.csv(output, paste(output_path,filename,"_preproc_", today(), ".csv", sep = "", collapse = NULL), row.names=FALSE)
