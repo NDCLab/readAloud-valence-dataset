@@ -9,7 +9,7 @@ library(lubridate)
 library(readxl)
 
 #READ IN THE CODED FILE AND ESTABLISH TWO DATAFRAMES, ERRORS AND TIMING
-path <- '~/github/readAloud-valence-dataset/code/'
+path <- '~/github/readAloud-valence-dataset/code/fakedata/'
 subject <- 190001
 filename <- paste("sub-", subject, sep = "", collapse = NULL)
 ext <- '.xlsx'

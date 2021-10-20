@@ -10,7 +10,7 @@ library(readxl)
 subject <- 190001
 
 #READ IN PASSAGE STRUCTURE TO SCAFFOLD SYLLABLE-LEVEL OUTPUT
-path1 <- '~/github/readAloud-valence-dataset/code/'
+path1 <- '~/github/readAloud-valence-dataset/code/fakedata/'
 filename1 <- 'mantis_structure'
 ext1 <- '.xlsx'
 passage1 = 'neg-pos_mantis'
