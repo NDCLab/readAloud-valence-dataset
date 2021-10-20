@@ -204,4 +204,4 @@ output <- data.frame("subject" = c(subject),
 )
 
 output_path <- '~/github/readAloud-valence-dataset/data-monitoring/postprocessing-check/'
-write.csv(output, paste(output_path,filename,"_preproc_", today(), ".csv", sep = "", collapse = NULL), row.names=FALSE)
+write.csv(output, paste(output_path,filename,"_passage_preproc_", today(), ".csv", sep = "", collapse = NULL), row.names=FALSE)
