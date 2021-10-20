@@ -11,6 +11,7 @@ subject <- 190001
 
 #READ IN PASSAGE STRUCTURE TO SCAFFOLD SYLLABLE-LEVEL OUTPUT
 path1 <- '~/github/readAloud-valence-dataset/code/fakedata/'
+#how to pull a list of these files: list.files(path1)
 filename1 <- 'mantis_structure'
 ext1 <- '.xlsx'
 passage1 = 'neg-pos_mantis'
