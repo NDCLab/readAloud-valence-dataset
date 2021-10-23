@@ -4,4 +4,8 @@ There are 20,000 known species of bee around the globe, of which eight make hone
 
 
 
-Question: TBD
+Question: Which of the following statements is true?
+All bees make honey.
+It is unsafe to put honey on your skin.
+One beehive can produce many pounds of honey.
+Most honey is made from tree pollen.
