@@ -7,11 +7,12 @@ This dataset provides behavioral results on a naturalistic reading task involvin
 ## Background & Design
 Broadly: how does the processing of emotional inputs impact our behavior? Specifically: in what ways does valence (including known effects in semantic integration and priming) impact performance when reading a text aloud?
 
-[Recent research](https://journals.sagepub.com/doi/pdf/10.1177/0963721419831992) is throwing away the old notion of "emotional" and "non-emotional" experiences and redefining valence and arousal as central to cognition. In this way, a person's mood might be viewed as a "filter" through which they experience the world.  When faced with conflicting emotional stimuli, an individual might be required to deploy inhibitory control in order to ignore their own mood to optimally process external stimuli.  One would be expected to perform better (faster, more accurately) on any task when they do not have to expend resources on such inhibitory control. Alternatively, there may be a "priming effect" that facilitates reading valenced words that either match one's mood or are congruent with the valence of recently read words. Likewise, switching between ends of the valence spectrum may operate similarly to switching between tasks, with emotional switches serving as stumbling blocks to the smooth execution of a task.
+[Recent research](https://journals.sagepub.com/doi/pdf/10.1177/0963721419831992) is throwing away the old notion of "emotional" and "non-emotional" experiences and redefining valence and arousal as central to cognition. In this way, a person's mood might be viewed as a "filter" through which they experience the world.  When faced with conflicting emotional stimuli, an individual might be required to deploy inhibitory control in order to ignore their own mood to optimally process external stimuli.  One would be expected to perform better (faster, more accurately) on any task when they do not have to expend resources on such inhibitory control. Alternatively, there may be a "priming effect" that facilitates reading valenced words that either match one's mood or are congruent with the valence of recently read words. Likewise, switching between ends of the valence spectrum may operate similarly to switching between tasks, with emotional switches serving as stumbling blocks to the smooth execution of a task. [ADD POST-ERROR BEHAVIOR]
 
-Participants completed two online behavioral tasks:
+Participants completed three online behavioral tasks:
 * reading aloud of valenced (positive/negative) passages, coded for speed and accuracy
 * a valenced lexical decision task
+* a dimension change card sorting task
 
 In addition, participants answered questions on:
 * detailed demographics
