@@ -5,4 +5,8 @@ And so began the rise of the modern market for electric vehicles. Quieter and mo
 Historically, electric-power cars were the first automotive vehicles on the road. Although they were eclipsed for a century by the petroleum powertrain, they have made a powerful comeback.
 
 
-Question: TBD
+Question: Which of the following was not mentioned as a disadvantage of gasoline-engine cars?
+Heavy
+Noisy
+Dangerous
+Expensive

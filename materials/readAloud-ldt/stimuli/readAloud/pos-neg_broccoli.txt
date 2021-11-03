@@ -6,4 +6,8 @@ So although these vegetables may curb your risk of cancer and heart disease, you
 
 
 
-Question: TBD
+Question: Which leafy green is mentioned by the text as a relative of broccoli?
+Chard
+Spinach
+Romaine
+Kale
