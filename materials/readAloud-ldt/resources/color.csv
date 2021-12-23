@@ -1,0 +1,9 @@
+left,right,middle,cue,corrAns
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/BlueBall.png,COLOR,f
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/YellowBall.png,COLOR,j
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/BlueTruck.png,COLOR,f
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/YellowTruck.png,COLOR,j
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/BlueBall.png,COLOR,f
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/YellowBall.png,COLOR,j
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/BlueTruck.png,COLOR,f
+resources/dccs/BlueBallWhite.png,resources/dccs/YellowTruckWhite.png,resources/dccs/YellowTruck.png,COLOR,j
