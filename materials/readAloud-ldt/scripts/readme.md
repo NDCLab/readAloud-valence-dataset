@@ -1,7 +1,3 @@
-# Task1 Scripts
+# readAloud-valence Scripts
 
-### Instructions
-This folder contains the scripts used to create the task. Replace "Task1" in the header above with a descriptive name for the task; provide project-specific notes below.
-
-
-### Project Notes
+The PsychoPy script is currently running on Pavlovia.  If you would like to see or fork it, please contact us.  Once data collection has ended, this page will include an open access link to the GitLab repository for the .psyexp experiment and its resources.
