@@ -3,9 +3,8 @@
 This folder contains the following:
 
 **ReadAloud Task (readAloud/)**
-- 8 txt files, each containing one stimulus passage and the challenge question associated with it (remaining passages currently being drafted)
-- an Excel workbook containing passage-level and word-level characteristics for the readAloud stimuli completed to date (in progress)
-- an Excel workbook containing coding structure for each reading passage (in progress)
+- 20 txt files, each containing one stimulus passage and the challenge question associated with it
+- an Excel workbook containing passage-level and word-level characteristics for the readAloud stimuli 
 - (TBD): for each passage, a CSV file from the English Lexicon Project used to acquire most of the word-level characteristics, along with a CSV file with summary characteristics (ELP transaction number is noted in cell A1 of the associated worksheet)
 
 **Lexical Decision Task (ldt/)**
