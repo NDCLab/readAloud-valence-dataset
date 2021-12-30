@@ -21,32 +21,32 @@ This folder contains the following:
 |emo-tone-all | LIWC | Overall emotional tone of the entire passage |
 |emo-tone-pos | LIWC | Emotional tone of the positive portion of the passage |
 |emo-tone-neg | LIWC | Emotional tone of the negative portion of the passage |
-|flesch-all | MS Word | A measure of [reading ease](https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch_reading_ease) for the entire passage |
-|flesch-pos | MS Word | Flesch score for the positive portion of the passage |
-|flesch-neg | MS Word | Flesch score for the negative portion of the passage |
+|flesch-all | MS Word (v16.56, Mac) | A measure of [reading ease](https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch_reading_ease) for the entire passage |
+|flesch-pos | MS Word (v16.56, Mac) | Flesch score for the positive portion of the passage |
+|flesch-neg | MS Word (v16.56, Mac) | Flesch score for the negative portion of the passage |
 |len-words-all | manual extraction | Number of words in the entire passage |
-|len-words-pos | manual extraction | Number of words in the positive portion of the passage |
-|len-words-neg | manual extraction | Number of words in the negative portion of the passage |
+|len-words-pos | manual extraction | Number of words in the positive portion of the passage (min:70, max:110) |
+|len-words-neg | manual extraction | Number of words in the negative portion of the passage (min:70, max:110) |
 |len-syll-all |manual extraction | Number of syllables in the entire passage, baed on the main pronunciation of the word |
 |len-syll-pos |manual extraction | Number of syllables in the positive portion of the passage |
 |len-syll-neg |manual extraction | Number of syllables in the negative portion of the passage |
-|pos-avg-WAR |Warriner et al. (2013) | Average valence rating of word lemmas in the positive portion of the passage. Used as preliminary indicator during drafting of valenced passages. |
-|neg-avg-WAR |Warriner et al. (2013) | Average valence rating of word lemmas in the negative portion of the passage. Used as preliminary indicator during drafting of valenced passages. |
+|pos-avg-WAR |Warriner et al. (2013) | Average valence rating of word lemmas in the positive portion of the passage. Used as preliminary indicator during drafting of valenced passages (>6.1) |
+|neg-avg-WAR |Warriner et al. (2013) | Average valence rating of word lemmas in the negative portion of the passage. Used as preliminary indicator during drafting of valenced passages (<4.8). |
 |pos-strength-WAR |manual calculation | Distance between pos-avg-WAR and the median of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
 |neg-strength-WAR |manual calculation | Distance between neg-avg-WAR and the median of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
 
 
 ### (Sub)Lexical Characteristics: Primary Interest
 
-All characteristics are drawn from the lemma unless otherwise noted.  For characteristics drawn from the English Lexicon Project, the full lexicon was queried. Within the Excel workbook containing the passage-level and word-level characteristics for the readAloud stimuli, these characteristics are recorded for each word in each text passage; the switch words are copied into an additional, standalone tab.
+All characteristics are drawn from the lemma unless the stimulus word itself was available in Warriner et al. (2013).  For characteristics drawn from the English Lexicon Project, the full lexicon was queried. Within the Excel workbook containing the passage-level and word-level characteristics for the readAloud stimuli, these characteristics are recorded for each word in each text passage; the switch words are copied into an additional, standalone tab.
 
 | characteristics | resource | notes |
 |:-- | :-- | :-- |
-| valence | Warriner et al. (2013) (-WAR); ANEW 2017 (-ANEW); Kousta et al. (2009) rating (-kousta)| Valence indicates the rating of the word on a scale from negative/unhappy to positive/happy.  The categorical rating attributed to Kousta et al. (2009) here is indicative of how stimuli were selected in their experimental setup; note, however, that in their analyses they used an extension of the ANEW ratings that provided a more normal frequency distribution across the valence spectrum than ANEW alone.  Subsequent work has found that the Warriner et al. (2013) ratings are more closely aligned with natural language. Scales: ANEW: from 1 (unhappy) to 9 (happy); Warriner: from 1 (unhappy) to 9 (happy); Kousta: negative/positive/neutral |
-| valence-strength-WAR | distance from neutral, median valence rating of 5.2| According to Warriner et al. (2013), more extremely valenced words tend to display less variability in their ratings than neutral words; therefore, words with higher values for valence-strength-WAR are likely to be more reliable than words with lower values. The median of the "V.Mean.Sum" column of data in the Warriner et al. (2013) dataset was calculated using the median() function in Microsoft Excel 16.52. |
+| valence | Warriner et al. (2013) (-WAR); ANEW 2017 (-ANEW); Kousta et al. (2009) rating (-kousta)| Valence indicates the rating of the word on a scale from negative/unhappy to positive/happy.  The categorical rating attributed to Kousta et al. (2009) here is indicative of how stimuli were selected in their experimental setup; note, however, that in their analyses they used an extension of the ANEW ratings that provided a more normal frequency distribution across the valence spectrum than ANEW alone.  Subsequent work has found that the Warriner et al. (2013) ratings are more closely aligned with natural language; therefore, only the Warriner et al. (2013) ratings are used for the readAloud stimuli. Scales: ANEW: from 1 (unhappy) to 9 (happy); Warriner: from 1 (unhappy) to 9 (happy); Kousta: negative/positive/neutral |
+| valence-strength-WAR | distance from neutral, median valence rating of 5.2| According to Warriner et al. (2013), more extremely valenced words tend to display less variability in their ratings than neutral words; therefore, words with higher values for valence-strength-WAR are likely to be more reliable than words with lower values. The median of the "V.Mean.Sum" column of data in the Warriner et al. (2013) dataset was calculated using the median() function in Microsoft Excel 16.52 (Mac). |
 | log-freq | HAL corpus {from ELP} (-HAL); SUBTLEX corpus {from ELP} (-SUB) | The log of the frequency of the word in the HAL corpus or SUBTLEX corpus, respectively. |
 | no-syll | English Lexicon Project | Number of syllables in the main pronunciation of the (full) word. |
-| no-lett | len() formula in Excel | Number of letters in the American spelling of the (full) word. |
+| no-lett | manual extraction | Number of letters in the American spelling of the (full) word. |
 | pos | English Lexicon Project | Part of speech: JJ (adjective), NN (noun), RB (adverb), VB (verb), encl (enclitic), minor (all other parts of speech), ? (unknown). A vertical bar is used to separate alternatives when a given word can be used as multiple parts of speech. |
 | 5-gram-cum-surprisal | kenLM on Gigaword 3? (is FIU a member of the Linguistics Data Consortium?) | TBD: cumulative, linear surprisal predicts reading time very well, must be log transformed (Smith+Levy) |
 
@@ -54,8 +54,8 @@ All characteristics are drawn from the lemma unless otherwise noted.  For charac
 
 | characteristics | resource | notes |
 |:-- | :-- | :-- |
-| arousal | ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR)| Arousal indicates the rating of the word on a scale from calm to excitatory.  Kuperman et al. (2014) found that valence and arousal have independent effects on lexical decision and speeded naming, with arousal have a substantially stronger effect. Scales: ANEW: from 1 (calm) to 9 (excited); Warriner: from 1 (calm) to 9 (excited). |
-| dominance | ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR) | Dominance indicates the rating of the word on a scale from low-control to high-control. Scales: ANEW: from 1 (controlled) to 9 (in control); Warriner: from 1 (controlled) to 9 (in control). |
+| arousal | ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR)| Arousal indicates the rating of the word on a scale from calm to excitatory.  Kuperman et al. (2014) found that valence and arousal have independent effects on lexical decision and speeded naming, with arousal having a substantially stronger effect. ANEW used only for LDT stimuli. Scales: ANEW: from 1 (calm) to 9 (excited); Warriner: from 1 (calm) to 9 (excited). |
+| dominance | ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR) | Dominance indicates the rating of the word on a scale from low-control to high-control. ANEW used only for LDT stimuli. Scales: ANEW: from 1 (controlled) to 9 (in control); Warriner: from 1 (controlled) to 9 (in control). |
 | aoa-root | Kuperman et al. (2012) {from ELP} | Average age the word is learned (age of acquisition). |
 | OLD20 | English Lexicon Project | The mean Levenshtein distance (the minimum number of letter insertions/deletions/substitutions needed to transform the target word into another word) between the word and its 20 closest neighbors (orthographic Levenshtein distance). |
 | PLD20 | English Lexicon Project | The mean Levenshtein distance (the minimum number of phoneme insertions/deletions/substitutions needed to transform the target word into another word) between the word and its 20 closest neighbors (phonologic Levenshtein distance). |
