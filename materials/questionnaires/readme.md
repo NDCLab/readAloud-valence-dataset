@@ -7,7 +7,6 @@ This folder contains the questionnaires (exported directly from REDCap) used in 
 * Brief Mood Introspection Scale (bmis)
 
 Participants complete the following after the Pavlovia tasks:
-* Brief Mood Introspection Scale (bmis)
 * Patient Health Questionnaire (phq8)
 * Emotion Regulation Questionnaire (erq)
 * Positive and Negative Affect Schedule (panas) {not yet included, pending IRB approval}
