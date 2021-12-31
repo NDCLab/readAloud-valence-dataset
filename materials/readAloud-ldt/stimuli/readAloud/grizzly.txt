@@ -3,4 +3,8 @@ The grizzly is a subspecies of the brown bear, notorious for its aggressive tend
 With a varied diet, the grizzly has a reputation for hunting in waterfalls. Salmon jump these changes in elevation and bears are excellent fishermen. The rise of ecotourism has made bear-watching a fashionable activity and the skill of the bear in salmon fishing is a consistent favorite. Salmon are rich in the nutrients that are needed to prepare for hibernation, especially for females. Mother bears give birth to cubs in their winter dens and their autumn meals must provide them with enough strength until the spring.
 
 
-Question: TBD
+Question: Which of the following is not a reason that grizzlies catch salmon?
+Salmon are rich in nutrients.
+Bears need to eat a lot before hibernating.
+Salmon can be caught when they jump waterfalls.
+Ecotourists love watching bears fish.
