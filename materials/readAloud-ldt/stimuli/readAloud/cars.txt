@@ -1,12 +1,10 @@
 Gasoline-engine cars were once loud, dangerous, and expensive. These disadvantages were conquered in the early twentieth century. The noise emitted by the exhaust of an internal combustion engine was suppressed by the muffler. The difficulty of hand-cranking was eliminated with the electric starter. And mass manufacturing by Henry Ford decreased the price. The electric automobile was all but forgotten. But as concerns intensified around pollution and the cost of fuel, the dependence on gasoline no longer struck consumers as such a bargain.
 
-And so began the rise of the modern market for electric vehicles. Quieter and more affordable to maintain, electric motors are especially desirable for their association with clean energy. In 2019, the seductive Tesla triumphed over the innovative Nissan Leaf as the top-selling electric car in the world.
-
-Historically, electric-power cars were the first automotive vehicles on the road. Although they were eclipsed for a century by the petroleum powertrain, they have made a powerful comeback.
+And so began the rise of the modern market for electric vehicles. Quieter and more affordable to maintain, electric motors are especially desirable for their association with clean energy. In 2019, the seductive Tesla triumphed over the innovative Nissan Leaf as the top-selling electric car in the world. Historically, electric-power cars were the first automotive vehicles on the road. Although they were eclipsed for a century by the petroleum powertrain, they have made a powerful comeback.
 
 
 Question: Which of the following was not mentioned as a disadvantage of gasoline-engine cars?
-Heavy
-Noisy
-Dangerous
-Expensive
+Heavy.
+Noisy.
+Dangerous.
+Expensive.

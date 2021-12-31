@@ -1,13 +1,11 @@
 Broccoli is great for heart health. High in fiber and various vitamins, this tasty vegetable has been found to support the immune system with its antioxidant properties. It originated in the northern Mediterranean during the Roman Empire and was brought to North America in the 19th century.
 
-The broccoli family is very diverse, including cauliflower, Brussels sprouts, and kale. There are a variety of ways to cook broccoli and its delicious friends, such as stir frying and pickling. Some methods of preparation moderate the family’s repulsive bitterness. That pungent and unpleasant flavor is most distinct in cabbage and horseradish. It is caused by sulfur-containing compounds that actually interfere with iodine absorption in the body.
-
-So although these vegetables may curb your risk of cancer and heart disease, you should avoid consuming too much, especially if you suffer from an iodine deficiency or other thyroid problems. The thyroid is a gland; it uses iodine to make hormones that control your metabolism. Today, the widespread availability of iodized table counteracts iodine deficiencies.
+The broccoli family is very diverse, including cauliflower, Brussels sprouts, and kale. There are a variety of ways to cook broccoli and its delicious friends, such as stir frying and pickling. Some methods of preparation moderate the family’s repulsive bitterness. That pungent and unpleasant flavor is most distinct in cabbage and horseradish. It is caused by sulfur-containing compounds that actually interfere with iodine absorption in the body. So, although these vegetables may curb your risk of cancer and heart disease, you should avoid consuming too much, especially if you suffer from an iodine deficiency or other thyroid problems. The thyroid is a gland; it uses iodine to make hormones that control your metabolism. Today, the widespread availability of iodized table counteracts iodine deficiencies.
 
 
 
 Question: Which leafy green is mentioned by the text as a relative of broccoli?
-Chard
-Spinach
-Romaine
-Kale
+Chard.
+Spinach.
+Romaine.
+Kale.

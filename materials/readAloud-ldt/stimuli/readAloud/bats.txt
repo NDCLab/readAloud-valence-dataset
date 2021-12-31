@@ -5,7 +5,7 @@ Across Asia and the Pacific, there are strong positive cultural associations wit
 
 
 Question: How many species of vampire bat are there?
-One
-Three
-Ten
-Dozens
+One.
+Three.
+Ten.
+Dozens.

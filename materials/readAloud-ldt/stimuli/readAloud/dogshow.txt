@@ -4,7 +4,7 @@ At a show, contestants are judged not against each other but against the standar
 
 
 Question: Pugs have all of the following health issues EXCEPT:
-Respiratory problems
-Heart disease
-Bulging eyeballs
-Shortened skulls
+Respiratory problems.
+Heart disease.
+Bulging eyeballs.
+Shortened skulls.

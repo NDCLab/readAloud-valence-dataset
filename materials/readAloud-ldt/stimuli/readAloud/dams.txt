@@ -4,7 +4,7 @@ Dams are an incredible invention. When they fail, the consequences can be catast
 
 
 Question: Which of the following is not mentioned by the text as a downside to dams?
-flooding
-ecosystem damage
-species endangerment
-harm to the beaver population
+Flooding.
+Ecosystem damage.
+Species endangerment.
+Harm to the beaver population.
