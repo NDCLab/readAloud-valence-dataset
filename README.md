@@ -19,6 +19,7 @@ In addition, participants answered questions on:
 * mood
 * emotion regulation
 * anxiety
+* depression
 
 
 ## Roadmap
