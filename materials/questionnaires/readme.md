@@ -15,5 +15,7 @@ Participants complete the following after the Pavlovia tasks:
 * Social Interaction Anxiety Scale/Social Phobia Scale (sias6sps6)
 * Affective Reactivity Index (ari)
 
-Scoring details for questionnaires can be found in the NDCLab [instruments](https://github.com/NDCLab/instruments) repository.
+Reference PDFs and scoring for any questionnaires can be found in the NDCLab [instruments](https://github.com/NDCLab/instruments) repository.
 
+
+**Version 1**: AnInvestigationIntoCognitionAn_DataDictionary_2022-01-20.csv</br>
