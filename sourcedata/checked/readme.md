@@ -1,7 +1,3 @@
 # Checked Source Data
 
-### Instructions
-This folder contains the data that has been checked and confirmed to be in order.
-
-
-### Project Notes
+This project is currently in data collection and data are not yet publicly available.

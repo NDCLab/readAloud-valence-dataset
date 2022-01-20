@@ -32,7 +32,6 @@ readAloud-valence-dataset
 ├── materials
     ├──questionnaires
     ├──readAloud-ldt
-          ├──protocol.md
           ├──scripts
           ├──stimuli
                ├──ldt

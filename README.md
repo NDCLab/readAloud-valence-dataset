@@ -33,8 +33,8 @@ This `main` branch contains completed releases for this project. For all work-in
 ## Contributors
 | Name | Role |
 | ---  | ---  |
-| Jessica M. Alexander | project lead |
-| Dr. George A. Buzzell | guidance |
+| Jessica M. Alexander | conceptualization, resources, project administration, data curation |
+| Dr. George A. Buzzell | supervision |
 
 Learn more about us [here](www.ndclab.com/people).
 
