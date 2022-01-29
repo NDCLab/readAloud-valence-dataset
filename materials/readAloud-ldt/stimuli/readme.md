@@ -15,7 +15,7 @@ This folder contains the following:
 
 ### Text Passage Characteristics
 
-| characteristics | resource | notes |
+| variable | source | notes |
 |:-- | :-- | :-- |
 |switchType | manual extraction | Indication of directionality of the passage's valence shift, from negative to positive (neg2pos) or positive to negative (pos2neg) |
 |questionVal | manual extraction | Indication of from which passage portion (negative or positive) the challenge question was drawn |
@@ -45,9 +45,9 @@ This folder contains the following:
 
 All characteristics are drawn from the lemma unless the stimulus word itself was available in Warriner et al. (2013).  For characteristics drawn from the English Lexicon Project, the full lexicon was queried. Within the Excel workbook containing the passage-level and word-level characteristics for the readAloud stimuli, these characteristics are recorded for each word in each text passage; the switch words are copied into an additional, standalone tab.
 
-| characteristics | resource | notes |
+| variable | source | notes |
 |:-- | :-- | :-- |
-| valence | Warriner et al. (2013) (-WAR); ANEW 2017 (-ANEW); Kousta et al. (2009) rating (-kousta)| Valence indicates the rating of the word on a scale from negative/unhappy to positive/happy.  The categorical rating attributed to Kousta et al. (2009) here is indicative of how stimuli were selected in their experimental setup; note, however, that in their analyses they used an extension of the ANEW ratings that provided a more normal frequency distribution across the valence spectrum than ANEW alone.  Subsequent work has found that the Warriner et al. (2013) ratings are more closely aligned with natural language; therefore, only the Warriner et al. (2013) ratings are used for the readAloud stimuli. Scales: ANEW: from 1 (unhappy) to 9 (happy); Warriner: from 1 (unhappy) to 9 (happy); Kousta: negative/positive/neutral |
+| valenceWAR | Warriner et al. (2013) | Work in 2014 by Kuperman et al. found that the Warriner et al. (2013) ratings are more closely aligned with natural language; therefore, only the Warriner et al. (2013) ratings are used for the readAloud stimuli. Scale: from 1 (unhappy) to 9 (happy). |
 | valenceStrengthWAR | distance from neutral, median valence rating of 5.2| According to Warriner et al. (2013), more extremely valenced words tend to display less variability in their ratings than neutral words; therefore, words with higher values for valence-strength-WAR are likely to be more reliable than words with lower values. The median of the "V.Mean.Sum" column of data in the Warriner et al. (2013) dataset was calculated using the median() function in Microsoft Excel 16.52 (Mac). |
 | logFreq | HAL corpus {from ELP} (-HAL); SUBTLEX corpus {from ELP} (-SUB) | The log of the frequency of the word in the HAL corpus or SUBTLEX corpus, respectively. |
 | noSyll | English Lexicon Project | Number of syllables in the main pronunciation of the (full) word. |
@@ -57,10 +57,10 @@ All characteristics are drawn from the lemma unless the stimulus word itself was
 
 ### (Sub)Lexical Characteristics: Collecting for Future Exploratory Analyses
 
-| characteristics | resource | notes |
+| variable | source | notes |
 |:-- | :-- | :-- |
-| arousal | ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR)| Arousal indicates the rating of the word on a scale from calm to excitatory.  Kuperman et al. (2014) found that valence and arousal have independent effects on lexical decision and speeded naming, with arousal having a substantially stronger effect. ANEW used only for LDT stimuli. Scales: ANEW: from 1 (calm) to 9 (excited); Warriner: from 1 (calm) to 9 (excited). |
-| dominance | ANEW 2017 (-ANEW); Warriner et al. (2013) {from ELP} (-WAR) | Dominance indicates the rating of the word on a scale from low-control to high-control. ANEW used only for LDT stimuli. Scales: ANEW: from 1 (controlled) to 9 (in control); Warriner: from 1 (controlled) to 9 (in control). |
+| arousalWAR | Warriner et al. (2013) {from ELP} (-WAR)| Arousal indicates the rating of the word on a scale from calm to excitatory.  Kuperman et al. (2014) found that valence and arousal have independent effects on lexical decision and speeded naming, with arousal having a substantially stronger effect. Scale: from 1 (calm) to 9 (excited). |
+| dominanceWAR | Warriner et al. (2013) {from ELP} | Dominance indicates the rating of the word on a scale from low-control to high-control. Scale: from 1 (controlled) to 9 (in control). |
 | aoa | Kuperman et al. (2012) {from ELP} | Average age the word is learned (age of acquisition). |
 | OLD20 | English Lexicon Project | The mean Levenshtein distance (the minimum number of letter insertions/deletions/substitutions needed to transform the target word into another word) between the word and its 20 closest neighbors (orthographic Levenshtein distance). |
 | PLD20 | English Lexicon Project | The mean Levenshtein distance (the minimum number of phoneme insertions/deletions/substitutions needed to transform the target word into another word) between the word and its 20 closest neighbors (phonologic Levenshtein distance). |
@@ -75,3 +75,12 @@ All characteristics are drawn from the lemma unless the stimulus word itself was
 | elp_nameRT | English Lexicon Project | Standardized, mean naming latency across all participants who encountered the word in the ELP speeded naming task. |
 | elp_nameACC | English Lexicon Project | Mean accuracy across all participants in the ELP speeded naming, excluding errors and outliers. |
 | elp_nameOBS | English Lexicon Project | Number of observations used to calculate name-rt. |
+
+### Measures Specific to the Lexical Decision Task
+
+| variable | source | notes |
+|:-- | :-- | :-- |
+| valenceKousta | Kousta et al. (2009)| Scale: negative/positive/neutral. |
+| valenceKoustaExtend | Personal Correspondence| Analyses in Kousta et al. (2009) draw upon an unpublished dataset of valence ratings that the authors used to extend ANEW. They were gracious enough to share this dataset with me for the purposes of this replication. I have not yet requested their permission to include the dataset publicly in this repository and, for this reason, the associated column is blank. Scale: from 1 (unhappy) to 9 (happy). |
+| valenceANEW | ANEW 2017 (-ANEW)| Scale: from 1 (unhappy) to 9 (happy). |
+| arousalANEW | ANEW 2017 | Scale: from 1 (calm) to 9 (excited). |
