@@ -82,5 +82,5 @@ All characteristics are drawn from the lemma unless the stimulus word itself was
 |:-- | :-- | :-- |
 | valenceKousta | Kousta et al. (2009)| Scale: negative/positive/neutral. |
 | valenceKoustaExtend | Personal Correspondence| Analyses in Kousta et al. (2009) draw upon an unpublished dataset of valence ratings that the authors used to extend ANEW. They were gracious enough to share this dataset with me for the purposes of this replication. I have not yet requested their permission to include the dataset publicly in this repository and, for this reason, the associated column is blank. Scale: from 1 (unhappy) to 9 (happy). |
-| valenceANEW | ANEW 2017 (-ANEW)| Scale: from 1 (unhappy) to 9 (happy). |
+| valenceANEW | ANEW 2017 | Scale: from 1 (unhappy) to 9 (happy). |
 | arousalANEW | ANEW 2017 | Scale: from 1 (calm) to 9 (excited). |
