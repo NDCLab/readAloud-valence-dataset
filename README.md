@@ -36,7 +36,7 @@ This `main` branch contains completed releases for this project. For all work-in
 | Jessica M. Alexander | conceptualization, resources, project administration, data curation |
 | Dr. George A. Buzzell | supervision |
 
-Learn more about us [here](www.ndclab.com/people).
+Learn more about us [here](https://www.ndclab.com/people).
 
 ## Contributing
 If you are interested in contributing, please read our [CONTRIBUTING.md](CONTRIBUTING.md) file.
