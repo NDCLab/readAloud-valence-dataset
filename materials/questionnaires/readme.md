@@ -20,5 +20,4 @@ Reference PDFs and scoring for any questionnaires can be found in the NDCLab [in
 
 **Version 1**: AnInvestigationIntoCognitionAn_DataDictionary_2022-01-20.csv</br>
 **Version 2**: AnInvestigationIntoCognitionAn_DataDictionary_2022-02-23.csv
-
-    * added stai5 and panasnow
+* added stai5 and panasnow
