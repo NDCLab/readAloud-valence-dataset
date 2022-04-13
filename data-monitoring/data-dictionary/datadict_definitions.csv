@@ -8,4 +8,4 @@ valueInfo,indication of how allowed values are determined; Likert/Categorical ma
 naValueType,"indication of how NA values are flagged (NA, NaN, etc.)"
 activeStatus,indication of whether variable is currently being used/collected
 replacement,"for inactive variables, indication of any variable that was used in replacement"
-provenance,"indication of whether variable is collected directly from the participanta and by what platform (direct-redcap, direct-psychopy, direct-pavlovia) or, if not direct, the origin of its derivation (that is, the script the calculates it)"
+provenance,"indication of whether variable is collected directly from the participanta and by what platform (direct-redcap, direct-psychopy, direct-pavlovia) or, if not direct, the origin of its derivation (that is, the script the calculates it, specified as code-SCRIPT, such as code-instruments or code-preproc.R)"
