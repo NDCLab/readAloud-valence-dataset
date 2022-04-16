@@ -28,9 +28,9 @@ This folder contains the following:
 |lenWORDall | manual extraction | Number of words in the entire passage |
 |lenWORDpos | manual extraction | Number of words in the positive portion of the passage (min:70, max:110) |
 |lenWORDneg | manual extraction | Number of words in the negative portion of the passage (min:70, max:110) |
-|lenSYLLall |manual extraction | Number of syllables in the entire passage, baed on the main pronunciation of the word |
-|lenSYLLpos |manual extraction | Number of syllables in the positive portion of the passage |
-|lenSYLLneg |manual extraction | Number of syllables in the negative portion of the passage |
+|lenSYLLall | manual extraction | Number of syllables in the entire passage, based on the ELP measure |
+|lenSYLLpos |manual extraction | Number of syllables in the positive portion of the passage, based on the ELP measure |
+|lenSYLLneg |manual extraction | Number of syllables in the negative portion of the passage, based on the ELP measure |
 |posAvgWAR |Warriner et al. (2013) | Average valence rating of word lemmas in the positive portion of the passage. Used as preliminary indicator during drafting of valenced passages (>6.1) |
 |negAvgWAR |Warriner et al. (2013) | Average valence rating of word lemmas in the negative portion of the passage. Used as preliminary indicator during drafting of valenced passages (<4.8). |
 |posStrengthWAR |manual calculation | Distance between pos-avg-WAR and the median of the Warriner et al. (2013) corpus (5.2). Used as preliminary indicator during drafting of valenced passages. |
