@@ -1,6 +1,6 @@
-# readAloud-valence-dataset Timingn and Pitch Preprocessing
+# readAloud-valence-dataset Timing and Pitch Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-04-14
+# Last Updated: 2022-04-18
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -22,7 +22,7 @@ out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/prepro
 #load passage characteristics data
 passageChar <- read_excel(passageChar_path, sheet="passages")
 
-#identify participant folders within input dir
+#identify participant files within input dir
 sub_files <- list.files(input_path, pattern = "sub")
 
 #create dataframes for storing output data and define output file names
