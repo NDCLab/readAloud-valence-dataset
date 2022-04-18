@@ -13,11 +13,11 @@ today <- format(today, "%Y%m%d")
 #hpc
 #blank_scaffolds <- '/home/data/NDClab/datasets/readAloud-valence-dataset/code/scaffolds.xlsx'
 #input_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
-#out_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
+#out_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/'
 #local
 blank_scaffolds <- '/Users/jalexand/github/readAloud-valence-dataset/code/scaffolds.xlsx'
 input_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
-out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
+out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/'
 
 #identify participant folders within input dir
 sub_folders <- list.files(input_path, pattern = "sub")
@@ -29,7 +29,7 @@ colnames(disfluencySummaryDat) <- c("id",
                                     "percDisfluent_firstHalf",
                                     "percDisfluent_lastHalf",
                                     "percDisfluent_switch")
-disfluency_out <- paste("disfluencies_subject-by-passage_summary_", today, ".csv", sep="", collapse=NULL)
+disfluency_out <- paste("disfluencies_subject-by-passage_", today, ".csv", sep="", collapse=NULL)
 
 ### SECTION 2: START PARTICIPANT LOOP
 #loop over participants (subfolders)
@@ -41,7 +41,7 @@ for(i in 1:length(sub_folders)){
   
   ### SECTION 3: START PASSAGE LOOP
   #establish passage name
-  for(j in 1:length(allFiles)){
+  for(j in 1:length(sub_files)){
     errorCoded_file <- paste(input_path, sub_folders[i],"/", sub_files[j], sep = "", collapse = NULL)
     passage <- strsplit(errorCoded_file, "_")[[1]][2]
     print(paste("Woohoo! Processing << ", passage, " >> for ", sub_folders[i], "!", sep = "", collapse = NULL))
@@ -56,11 +56,41 @@ for(i in 1:length(sub_folders)){
 
     passageErrors <- cbind(scaffold, errorDataT)
     
+    #add column to indicate all disfluent syllables
+    passageErrors$disfluent <- rowSums(passageErrors[,6:14])>0
+    
     #calculate percentage disfluency in each passage half and switch group
+    #first half
+    passageErrors_first <- passageErrors[1:(match("switch", passageErrors$wordGroup)-1),]
+    numSyll_first <- length(passageErrors_first$disfluent) #count number of syllables in group
+    passageErrors_first_disfluent <- passageErrors_first[passageErrors_first$disfluent,] #subset to disfluent rows
+    numSyll_first_disfluent <- length(passageErrors_first_disfluent$disfluent) #count number of disfluent syllables
+    percDisfluent_firstHalf <- numSyll_first_disfluent / numSyll_first
+    
+    #second half
+    passageErrors_last <- tail(passageErrors, (length(passageErrors$wordGroup) - match("switch", passageErrors$wordGroup) + 1) )
+    numSyll_last <- length(passageErrors_last$disfluent) #count number of syllables in group
+    passageErrors_last_disfluent <- passageErrors_last[passageErrors_last$disfluent,] #subset to disfluent rows
+    numSyll_last_disfluent <- length(passageErrors_last_disfluent$disfluent) #count number of disfluent syllables
+    percDisfluent_lastHalf <- numSyll_last_disfluent / numSyll_last
+    
+    #switch group
+    passageErrors_switch <- passageErrors[passageErrors$wordGroup %in% c("switchGroup", "switch"),] #subset to switch group rows
+    numSyll_switch <- length(passageErrors_switch$disfluent) #count number of syllables in group
+    passageErrors_switch_disfluent <- passageErrors_switch[passageErrors_switch$disfluent,] #subset to disfluent rows
+    numSyll_switch_disfluent <- length(passageErrors_switch_disfluent$disfluent) #count number of disfluent syllables
+    percDisfluent_switch <- numSyll_switch_disfluent / numSyll_switch
+    
+    
+    #store output data in summary matrices
+    disfluencySummaryDat[nrow(disfluencySummaryDat) + 1,] <-c(id,
+                                                              passage,
+                                                              percDisfluent_firstHalf,
+                                                              percDisfluent_lastHalf,
+                                                              percDisfluent_switch)
+  
   }
-  
-  
-  
-  
+}
 
-  
+### SECTION 4: OUTPUT DATA
+write.csv(disfluencySummaryDat,paste(out_path, disfluency_out, sep = "", collapse = NULL), row.names=FALSE)
