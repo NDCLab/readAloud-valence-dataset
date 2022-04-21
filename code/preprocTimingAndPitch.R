@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Timing and Pitch Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-04-18
+# Last Updated: 2022-04-21
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -135,3 +135,34 @@ for(i in 1:length(sub_files)){
 #write the extracted summary scores to CSV
 write.csv(timingSummaryDat,paste(out_path,timing_out, sep = "", collapse = NULL), row.names=FALSE)
 write.csv(pitchSummaryDat,paste(out_path,pitch_out, sep = "", collapse = NULL), row.names=FALSE)
+
+
+### SECTION 8: UPDATE CENTRAL TRACKER FOR STUDY
+#load central tracker
+track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
+
+#readAloudTiming_s1_r1_e1
+for(row in 1:nrow(trackerDat$id)){
+  id <- trackerDat[row, "id"]
+  if (id %in% unique(timingSummaryDat$id)){
+    trackerDat[trackerDat$id == id, ]$readAloudTiming_s1_r1_e1 = "11"
+  } else {
+    trackerDat[trackerDat$id == id, ]$readAloudTiming_s1_r1_e1 = "0"
+  }
+}
+print("Updated readAloudTiming_s1_r1_e1!")
+
+#readAloudPitch_s1_r1_e1
+for(row in 1:nrow(trackerDat$id)){
+  id <- trackerDat[row, "id"]
+  if (id %in% unique(pitchSummaryDat$id)){
+    trackerDat[trackerDat$id == id, ]$readAloudPitch_s1_r1_e1 = "11"
+  } else {
+    trackerDat[trackerDat$id == id, ]$readAloudPitch_s1_r1_e1 = "0"
+  }
+}
+print("Updated readAloudPitch_s1_r1_e1!")
+
+#write back to central tracker
+write.csv(trackerDat, track_path, row.names = FALSE)

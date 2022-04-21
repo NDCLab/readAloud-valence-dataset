@@ -1,7 +1,7 @@
 # readAloud-valence-dataset PsychoPy/Pavlovia Preprocessing
 # Author: Jessica M. Alexander
 # (DCCS section is based upon a script written by Jessica M. Alexander, George A. Buzzell, Arina Polyanskaya in early 2022)
-# Last Updated: 2022-04-04
+# Last Updated: 2022-04-21
 
 ### SECTION 1: SETTING UP
 #set up date for output file naming
@@ -381,3 +381,49 @@ write.csv(ldtSummaryDat,paste(out_path,ldt_out_subjectLevel, sep = "", collapse 
 write.csv(ldtTrialDat,paste(out_path,ldt_out_trialLevel, sep = "", collapse = NULL), row.names=FALSE)
 write.csv(dccsSummaryDat,paste(out_path,dccs_out_subjectLevel, sep = "", collapse = NULL), row.names=FALSE)
 write.csv(dccsTrialDat,paste(out_path,dccs_out_trialLevel, sep = "", collapse = NULL), row.names=FALSE)
+
+### SECTION 8: UPDATE CENTRAL TRACKER FOR STUDY
+#load central tracker
+track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
+
+#readAloudChallenge_s1_r1_e1
+for (row in 1:nrow(readAloudSummaryDat)) {
+  accuracy <- readAloudSummaryDat[row, "challengeAccuracy"]
+  id <- readAloudSummaryDat[row, "id"]
+  if (accuracy >= 0.7) {
+    trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "11"
+  } else {
+    tracker_data[tracker_data$id == id, ]$readAloudChallenge_s1_r1_e1 = "19"
+  } 
+}
+print("Updated readAloudChallenge_s1_r1_e1!")
+
+#ldt_s1_r1_e1
+for (row in 1:nrow(ldtSummaryDat)) {
+  accuracy <- ldtSummaryDat[row, "ldtAccuracy"]
+  id <- ldtSummaryDat[row, "id"]
+  if (accuracy >= 0.8) {
+    trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "11"
+  } else {
+    tracker_data[tracker_data$id == id, ]$ldt_s1_r1_e1 = "19"
+  } 
+}
+print("Updated ldt_s1_r1_e1!")
+
+#dccs_s1_r1_e1
+for (row in 1:nrow(dccsSummaryDat)) {
+  accuracy <- dccsSummaryDat[row, "dccsAccuracy"]
+  id <- dccsSummaryDat[row, "id"]
+  shapePass <- dccsSummaryDat[row, "shapePracticePass"]
+  colorPass <- dccsSummaryDat[row, "colorPracticePass"]
+  if (accuracy >= 0.8 && shapePass && colorPass) {
+    trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "11"
+  } else {
+    tracker_data[tracker_data$id == id, ]$dccs_s1_r1_e1 = "19"
+  } 
+}
+print("Updated dccs_s1_r1_e1!")
+
+#write back to central tracker
+write.csv(trackerDat, track_path, row.names = FALSE)

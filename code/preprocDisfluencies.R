@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Error Coding Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-04-18
+# Last Updated: 2022-04-21
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -122,3 +122,23 @@ for(i in 1:length(sub_folders)){
 
 ### SECTION 4: OUTPUT DATA
 write.csv(disfluencySummaryDat,paste(out_path, disfluency_out, sep = "", collapse = NULL), row.names=FALSE)
+
+
+### SECTION 5: UPDATE CENTRAL TRACKER FOR STUDY
+#load central tracker
+track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
+
+#readAloudDisfluencies_s1_r1_e1
+for(row in 1:nrow(trackerDat$id)){
+  id <- trackerDat[row, "id"]
+  if (id %in% unique(disfluencySummaryDat$id)){
+    trackerDat[trackerDat$id == id, ]$readAloudDisfluencies_s1_r1_e1 = "11"
+  } else {
+    trackerDat[trackerDat$id == id, ]$readAloudDisfluencies_s1_r1_e1 = "0"
+  }
+}
+print("Updated readAloudDisfluencies_s1_r1_e1!")
+
+#write back to central tracker
+write.csv(trackerDat, track_path, row.names = FALSE)
