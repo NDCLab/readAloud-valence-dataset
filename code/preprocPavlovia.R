@@ -1,7 +1,7 @@
 # readAloud-valence-dataset PsychoPy/Pavlovia Preprocessing
 # Author: Jessica M. Alexander
 # (DCCS section is based upon a script written by Jessica M. Alexander, George A. Buzzell, Arina Polyanskaya in early 2022)
-# Last Updated: 2022-04-21
+# Last Updated: 2022-04-22
 
 ### SECTION 1: SETTING UP
 #set up date for output file naming
@@ -394,7 +394,7 @@ for (row in 1:nrow(readAloudSummaryDat)) {
   if (accuracy >= 0.7) {
     trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "11"
   } else {
-    tracker_data[tracker_data$id == id, ]$readAloudChallenge_s1_r1_e1 = "19"
+    trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "19"
   } 
 }
 print("Updated readAloudChallenge_s1_r1_e1!")
@@ -406,7 +406,7 @@ for (row in 1:nrow(ldtSummaryDat)) {
   if (accuracy >= 0.8) {
     trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "11"
   } else {
-    tracker_data[tracker_data$id == id, ]$ldt_s1_r1_e1 = "19"
+    trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "19"
   } 
 }
 print("Updated ldt_s1_r1_e1!")
@@ -420,7 +420,7 @@ for (row in 1:nrow(dccsSummaryDat)) {
   if (accuracy >= 0.8 && shapePass && colorPass) {
     trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "11"
   } else {
-    tracker_data[tracker_data$id == id, ]$dccs_s1_r1_e1 = "19"
+    trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "19"
   } 
 }
 print("Updated dccs_s1_r1_e1!")
