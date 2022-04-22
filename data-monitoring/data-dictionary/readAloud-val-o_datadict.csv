@@ -64,41 +64,41 @@ syllPerSec_prePREswitch,"readAloud task, subject-by-passage: timing of reading t
 syllPerSec_preswitch,"readAloud task, subject-by-passage: timing of reading the preswitch group",total syllables for preswitch group (as in coding Excel) divided by total reading time,s1_r1_e1,Real,"[0,inf]",syllables per second,NA,1,NA,code-preprocTimingandPitch.R
 syllPerSec_switch,"readAloud task, subject-by-passage: timing of reading the switch group",total syllables for switch group (as in coding Excel) divided by total reading time,s1_r1_e1,Real,"[0,inf]",syllables per second,NA,1,NA,code-preprocTimingandPitch.R
 syllPerSec_postswitch,"readAloud task, subject-by-passage: timing of reading the postswitch group",total syllables for postswitch group (as in coding Excel) divided by total reading time,s1_r1_e1,Real,"[0,inf]",syllables per second,NA,1,NA,code-preprocTimingandPitch.R
-vocalPitch_firstHalf,"readAloud task, subject-by-passage: average pitch of reading the first half of the passage",,,,,,,,,code-preprocTimingandPitch.R
-vocalPitch_lastHalf,"readAloud task, subject-by-passage: average pitch of reading the second half of the passage",,,,,,,,,code-preprocTimingandPitch.R
-vocalPitch_prePREswitch,"readAloud task, subject-by-passage: average pitch of reading the prePREswitch group",,,,,,,,,code-preprocTimingandPitch.R
-vocalPitch_preswitch,"readAloud task, subject-by-passage: average pitch of reading the preswitch group",,,,,,,,,code-preprocTimingandPitch.R
-vocalPitch_switch,"readAloud task, subject-by-passage: average pitch of reading the switch group",,,,,,,,,code-preprocTimingandPitch.R
-vocalPitch_postswitch,"readAloud task, subject-by-passage: average pitch of reading the postswitch group",,,,,,,,,code-preprocTimingandPitch.R
-percDisfluent_firstHalf,,,,,,,,,,code-preprocDisfluencies.R
-percDisfluent_lastHalf,,,,,,,,,,code-preprocDisfluencies.R
-percDisfluent_prePREswitch,,,,,,,,,,code-preprocDisfluencies.R
-percDisfluent_preswitch,,,,,,,,,,code-preprocDisfluencies.R
-percDisfluent_switch,,,,,,,,,,code-preprocDisfluencies.R
-percDisfluent_postswitch,,,,,,,,,,code-preprocDisfluencies.R
-readStart,,,,,,,,,,manual-TimingandPitch
-prePREswitchStart,,,,,,,,,,manual-TimingandPitch
-preswitchStart,,,,,,,,,,manual-TimingandPitch
-switchStart,,,,,,,,,,manual-TimingandPitch
-switchWord,,,,,,,,,,manual-TimingandPitch
-postswitchStart,,,,,,,,,,manual-TimingandPitch
-postswitchEnd,,,,,,,,,,manual-TimingandPitch
-readEnd,,,,,,,,,,manual-TimingandPitch
-pitchStartToSwitch,,,,,,,,,,manual-TimingandPitch
-pitchSwitchToEnd,,,,,,,,,,manual-TimingandPitch
-pitchPrePREswitchGroup,,,,,,,,,,manual-TimingandPitch
-pitchPreswitchGroup,,,,,,,,,,manual-TimingandPitch
-pitchSwitchGroup,,,,,,,,,,manual-TimingandPitch
-pitchPostswitchGroup,,,,,,,,,,manual-TimingandPitch
-Mispronunciation,,,,,,,,,,manual-ErrorCoding
-Word Stress Error,,,,,,,,,,manual-ErrorCoding
-Duplication,,,,,,,,,,manual-ErrorCoding
-False Start,,,,,,,,,,manual-ErrorCoding
-Insertion/Filled Pause,,,,,,,,,,manual-ErrorCoding
-Hesitation,,,,,,,,,,manual-ErrorCoding
-Elongation,,,,,,,,,,manual-ErrorCoding
-Omission,,,,,,,,,,manual-ErrorCoding
-Flipped Production,,,,,,,,,,manual-ErrorCoding
-Correction,,,,,,,,,,manual-ErrorCoding
-Actual Production,,,,,,,,,,manual-ErrorCoding
-Actual Correction Produced,,,,,,,,,,manual-ErrorCoding
+vocalPitch_firstHalf,"readAloud task, subject-by-passage: average pitch of reading the first half of the passage",average pitch for first passage half (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,code-preprocTimingandPitch.R
+vocalPitch_lastHalf,"readAloud task, subject-by-passage: average pitch of reading the second half of the passage",average pitch for second passage half (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,code-preprocTimingandPitch.R
+vocalPitch_prePREswitch,"readAloud task, subject-by-passage: average pitch of reading the prePREswitch group",average pitch for prePREswitch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,code-preprocTimingandPitch.R
+vocalPitch_preswitch,"readAloud task, subject-by-passage: average pitch of reading the preswitch group",average pitch for preswitch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,code-preprocTimingandPitch.R
+vocalPitch_switch,"readAloud task, subject-by-passage: average pitch of reading the switch group",average pitchfor switch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,code-preprocTimingandPitch.R
+vocalPitch_postswitch,"readAloud task, subject-by-passage: average pitch of reading the postswitch group",average pitch for postswitch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,code-preprocTimingandPitch.R
+percDisfluent_firstHalf,"readAloud task, subject-by-passage: percentage disfluency of reading the first half of the passage",number of disfluent syllables for first passage half divided by total number of syllables in passage half,s1_r1_e1,Real,"[0,1]",percentage,NA,1,NA,code-preprocDisfluencies.R
+percDisfluent_lastHalf,"readAloud task, subject-by-passage: percentage disfluency of reading the second half of the passage",number of disfluent syllables for second passage half divided by total number of syllables in passage half,s1_r1_e1,Real,"[0,1]",percentage,NA,1,NA,code-preprocDisfluencies.R
+percDisfluent_prePREswitch,"readAloud task, subject-by-passage: percentage disfluency of reading the prePREswitch group",number of disfluent syllables for prePREswitch group divided by total number of syllables in the group,s1_r1_e1,Real,"[0,1]",percentage,NA,1,NA,code-preprocDisfluencies.R
+percDisfluent_preswitch,"readAloud task, subject-by-passage: percentage disfluency of reading the preswitch group",number of disfluent syllables for preswitch group divided by total number of syllables in the group,s1_r1_e1,Real,"[0,1]",percentage,NA,1,NA,code-preprocDisfluencies.R
+percDisfluent_switch,"readAloud task, subject-by-passage: percentage disfluency of reading the switch group",number of disfluent syllables for switch group divided by total number of syllables in the group,s1_r1_e1,Real,"[0,1]",percentage,NA,1,NA,code-preprocDisfluencies.R
+percDisfluent_postswitch,"readAloud task, subject-by-passage: percentage disfluency of reading the postswitch group",number of disfluent syllables for postswitch group divided by total number of syllables in the group,s1_r1_e1,Real,"[0,1]",percentage,NA,1,NA,code-preprocDisfluencies.R
+readStart,readAloud task: time of reading start,timepoint in passage-specific file participant began speaking the first word of the passage,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+prePREswitchStart,readAloud task: time of start prePREswitch group,timepoint in passage-specific file participant began speaking the first word of the prePREswitch group,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+preswitchStart,readAloud task: time of start preswitch group,timepoint in passage-specific file participant began speaking the first word of the preswitch group,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+switchStart,readAloud task: time of start switch group,timepoint in passage-specific file participant began speaking the first word of the switch group,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+switchWord,readAloud task: time of start switch word,timepoint in passage-specific file participant began speaking the switch word,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+postswitchStart,readAloud task: time of start postswitch group,timepoint in passage-specific file participant began speaking the first word of the postswitch group,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+postswitchEnd,readAloud task: time of end postswitch group,timepoint in passage-specific file participant completed speaking the last word of the postswitch group,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+readEnd,readAloud task: time of reading end,timepoint in passage-specific file participant completed speaking the last word of the passage,s1_r1_e1,Real,"[0,200]",seconds,NA,1,NA,manual-TimingandPitch
+pitchStartToSwitch,"readAloud task, subject-by-passage: average pitch of reading the first half of the passage",average pitch for first passage half (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,manual-TimingandPitch
+pitchSwitchToEnd,"readAloud task, subject-by-passage: average pitch of reading the second half of the passage",average pitch for second passage half (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,manual-TimingandPitch
+pitchPrePREswitchGroup,"readAloud task, subject-by-passage: average pitch of reading the prePREswitch group",average pitch for prePREswitch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,manual-TimingandPitch
+pitchPreswitchGroup,"readAloud task, subject-by-passage: average pitch of reading the preswitch group",average pitch for preswitch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,manual-TimingandPitch
+pitchSwitchGroup,"readAloud task, subject-by-passage: average pitch of reading the switch group",average pitchfor switch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,manual-TimingandPitch
+pitchPostswitchGroup,"readAloud task, subject-by-passage: average pitch of reading the postswitch group",average pitch for postswitch group (as in coding Excel) from Praat,s1_r1_e1,Real,"[60,300]",Hz,NA,1,NA,manual-TimingandPitch
+Mispronunciation,readAloud task: mispronunciation disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Word Stress Error,readAloud task: word stress error disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Duplication,readAloud task: duplication disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+False Start,readAloud task: false start disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Insertion/Filled Pause,readAloud task: insertion/filled pause disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Hesitation,readAloud task: hesitation disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Elongation,readAloud task: elongation disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Omission,readAloud task: omission disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Flipped Production,readAloud task: flipped production disfluency,indication of whether syllable was disfluent or not (see protocol for details of error category),s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Correction,readAloud task: error was corrected,"indication, for a disfluent syllable, of whether the participant repeated themselves in an attempt (successful or not) to correct a prior error",s1_r1_e1,Logical,"0, 1","0, error | 1, no error",NA,1,NA,manual-ErrorCoding
+Actual Production,readAloud task: actual words/nonwords produced,"indication, for disfluent word(s) of the word or nonword actually produced",s1_r1_e1,Char,text,NA,NA,1,NA,manual-ErrorCoding
+Actual Correction Produced,readAloud task: correction produced,"indication, for attempted corrections, of the word(s) actually produced",s1_r1_e1,Char,text,NA,NA,1,NA,manual-ErrorCoding
