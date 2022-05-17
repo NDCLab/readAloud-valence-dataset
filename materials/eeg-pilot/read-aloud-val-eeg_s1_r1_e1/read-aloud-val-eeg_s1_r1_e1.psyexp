@@ -5,9 +5,9 @@
     <Param name="Audio lib" updates="None" val="use prefs" valType="str"/>
     <Param name="Completed URL" updates="None" val="" valType="str"/>
     <Param name="Data file delimiter" updates="None" val="auto" valType="str"/>
-    <Param name="Data filename" updates="None" val="u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])" valType="code"/>
+    <Param name="Data filename" updates="None" val="u'data/%s_%s_%s' % (expInfo['id'], expName, expInfo['date'])" valType="code"/>
     <Param name="Enable Escape" updates="None" val="True" valType="bool"/>
-    <Param name="Experiment info" updates="None" val="{'participant': ''}" valType="code"/>
+    <Param name="Experiment info" updates="None" val="{'id': '', 'counterbalance': &quot;['A', 'B']&quot;}" valType="code"/>
     <Param name="Force stereo" updates="None" val="True" valType="bool"/>
     <Param name="Full-screen window" updates="None" val="True" valType="bool"/>
     <Param name="HTML path" updates="None" val="" valType="str"/>
@@ -446,23 +446,6 @@
         <Param name="storeCorrect" updates="constant" val="False" valType="bool"/>
         <Param name="syncScreenRefresh" updates="constant" val="True" valType="bool"/>
       </KeyboardComponent>
-      <CodeComponent name="code_2">
-        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Experiment" updates="constant" val="id = expInfo['participant']" valType="extendedCode"/>
-        <Param name="Begin JS Experiment" updates="constant" val="id = expInfo[&quot;participant&quot;];&amp;#10;" valType="extendedCode"/>
-        <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
-        <Param name="Each Frame" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Each JS Frame" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="name" updates="None" val="code_2" valType="code"/>
-      </CodeComponent>
       <CodeComponent name="jsCode">
         <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Before JS Experiment" updates="constant" val="// for our own functions we need these specified in the global space &amp;#10;// so these are defined in the &quot;Before experiment&quot; tab&amp;#10;// linspace (this will be used in place of numpy.linspace for picking ISI)&amp;#10;&amp;#10;function linspace(a,b,n) {&amp;#10;    if(typeof n === &quot;undefined&quot;) n = Math.max(Math.round(b-a)+1,1);&amp;#10;    if(n&lt;2) { return n===1?[a]:[]; }&amp;#10;    var i,ret = Array(n);&amp;#10;    n--;&amp;#10;    for(i=n;i&gt;=0;i--) { ret[i] = (i*b+(n-i)*a)/n; }&amp;#10;    return ret;&amp;#10;}" valType="extendedCode"/>
@@ -608,7 +591,7 @@
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="True" valType="bool"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
         <Param name="name" updates="None" val="codeTriggers" valType="code"/>
       </CodeComponent>
       <TextComponent name="passageText1">
@@ -830,7 +813,7 @@
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="True" valType="bool"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
         <Param name="name" updates="None" val="codeTriggers2" valType="code"/>
       </CodeComponent>
     </Routine>
@@ -849,7 +832,7 @@
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="True" valType="bool"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
         <Param name="name" updates="None" val="codeTriggers3" valType="code"/>
       </CodeComponent>
       <TextComponent name="passageText2">
@@ -1071,7 +1054,7 @@
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="True" valType="bool"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
         <Param name="name" updates="None" val="codeTriggers4" valType="code"/>
       </CodeComponent>
     </Routine>
@@ -1237,8 +1220,8 @@
       <CodeComponent name="balanceCode">
         <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Experiment" updates="constant" val="if int(expInfo['participant']) % 2 == 0:&amp;#10;    whichList = 'resources/passageListA.xlsx'&amp;#10;else:&amp;#10;    whichList = 'resources/passageListB.xlsx'" valType="extendedCode"/>
-        <Param name="Begin JS Experiment" updates="constant" val="if (((Number.parseInt(expInfo[&quot;participant&quot;]) % 2) === 0)) {&amp;#10;    whichList = &quot;resources/passageListA.xlsx&quot;;&amp;#10;} else {&amp;#10;    whichList = &quot;resources/passageListB.xlsx&quot;;&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="if expInfo['counterbalance'] == 'A':&amp;#10;    whichList = 'resources/passageListA.xlsx'&amp;#10;else:&amp;#10;    whichList = 'resources/passageListB.xlsx'" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="if ((expInfo[&quot;counterbalance&quot;] === &quot;A&quot;)) {&amp;#10;    whichList = &quot;resources/passageListA.xlsx&quot;;&amp;#10;} else {&amp;#10;    whichList = &quot;resources/passageListB.xlsx&quot;;&amp;#10;}&amp;#10;" valType="extendedCode"/>
         <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
@@ -1282,7 +1265,7 @@
         <Param name="End JS Experiment" updates="constant" val="psychoJS.window.mouseVisible = true;&amp;#10;port.write([255]);&amp;#10;time.sleep(PulseWidth);&amp;#10;port.close();&amp;#10;" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="True" valType="bool"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
         <Param name="name" updates="None" val="eegTriggerCode" valType="code"/>
       </CodeComponent>
     </Routine>
