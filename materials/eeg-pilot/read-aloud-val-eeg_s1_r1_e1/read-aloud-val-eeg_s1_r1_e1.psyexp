@@ -723,58 +723,6 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
-      <CodeComponent name="codeTriggers2">
-        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin JS Routine" updates="constant" val="stimTriggerSent = false;&amp;#10;" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="#set stimTriggerSent to false at the start of the trial. this way&amp;#10;#when the stimulus is shown, we can change it to True. This variable&amp;#10;#is used to ensure we only throw the stimulus EEG trigger once.&amp;#10;stimTriggerSent = False&amp;#10;" valType="extendedCode"/>
-        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
-        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: CHALLENGE QUESTION APPEARS&amp;#10;#the if statement below ensures that the subsequent if statements (and throwing of triggers)&amp;#10;#only occurs once per trial. That is, only when the stimulus is presented (.status = STARTED) and&amp;#10;#stimTriggerSent is still False. Once a trigger is sent, we change stimTriggerSent to True so that &amp;#10;#the stimulus eeg trigger will not be sent again for this trial&amp;#10;if challengeText1.status == STARTED and not stimTriggerSent:&amp;#10;    stimTriggerSent = True #switch stimTriggerSent to True so that the stimulus eeg trigger will not be sent again this trial&amp;#10;    port.write([0x15]) #hexcode = 21, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;&amp;#10;" valType="extendedCode"/>
-        <Param name="Each JS Frame" updates="constant" val="if (((challengeText1.status === PsychoJS.Status.STARTED) &amp;&amp; (! stimTriggerSent))) {&amp;#10;    stimTriggerSent = true;&amp;#10;    port.write([21]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;" valType="extendedCode"/>
-        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="name" updates="None" val="codeTriggers2" valType="code"/>
-      </CodeComponent>
-      <KeyboardComponent name="challengeResponse1">
-        <Param name="allowedKeys" updates="constant" val="'a','b','c','d'" valType="list"/>
-        <Param name="correctAns" updates="constant" val="$firstcorrectAnswer" valType="str"/>
-        <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="discard previous" updates="constant" val="True" valType="bool"/>
-        <Param name="durationEstim" updates="None" val="" valType="num"/>
-        <Param name="forceEndRoutine" updates="constant" val="False" valType="bool"/>
-        <Param name="name" updates="None" val="challengeResponse1" valType="code"/>
-        <Param name="saveStartStop" updates="None" val="True" valType="bool"/>
-        <Param name="startEstim" updates="None" val="" valType="num"/>
-        <Param name="startType" updates="None" val="time (s)" valType="str"/>
-        <Param name="startVal" updates="None" val="0.0" valType="num"/>
-        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
-        <Param name="stopVal" updates="constant" val="" valType="num"/>
-        <Param name="store" updates="constant" val="last key" valType="str"/>
-        <Param name="storeCorrect" updates="constant" val="True" valType="bool"/>
-        <Param name="syncScreenRefresh" updates="constant" val="True" valType="bool"/>
-      </KeyboardComponent>
-      <CodeComponent name="code_2">
-        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin JS Routine" updates="constant" val="respTriggerSent = false;&amp;#10;" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="respTriggerSent = False" valType="extendedCode"/>
-        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
-        <Param name="Each Frame" updates="constant" val="#RESPONSE TRIGGER&amp;#10;if not respTriggerSent:&amp;#10;    if challengeResponse1.corr == 0 and stimTriggerSent: #error response&amp;#10;        respTriggerSent = True&amp;#10;        port.write([0x1e]) #hexcode = 30, eeg trigger sent&amp;#10;        time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;        port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;    elif challengeResponse1.corr == 1 and stimTriggerSent: #correct response&amp;#10;        respTriggerSent = True&amp;#10;        port.write([0x1f]) #hexcode = 31, eeg trigger sent&amp;#10;        time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;        port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
-        <Param name="Each JS Frame" updates="constant" val="if ((! respTriggerSent)) {&amp;#10;    if (((challengeResponse1.corr === 0) &amp;&amp; stimTriggerSent)) {&amp;#10;        respTriggerSent = true;&amp;#10;        port.write([30]);&amp;#10;        time.sleep(PulseWidth);&amp;#10;        port.write([0]);&amp;#10;    } else {&amp;#10;        if (((challengeResponse1.corr === 1) &amp;&amp; stimTriggerSent)) {&amp;#10;            respTriggerSent = true;&amp;#10;            port.write([31]);&amp;#10;            time.sleep(PulseWidth);&amp;#10;            port.write([0]);&amp;#10;        }&amp;#10;    }&amp;#10;}&amp;#10;" valType="extendedCode"/>
-        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="name" updates="None" val="code_2" valType="code"/>
-      </CodeComponent>
       <TextComponent name="challengeOptions1">
         <Param name="color" updates="constant" val="black" valType="color"/>
         <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
@@ -800,6 +748,23 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
+      <CodeComponent name="codeTriggers2">
+        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="stimTriggerSent = false;&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="#set stimTriggerSent to false at the start of the trial. this way&amp;#10;#when the stimulus is shown, we can change it to True. This variable&amp;#10;#is used to ensure we only throw the stimulus EEG trigger once.&amp;#10;stimTriggerSent = False&amp;#10;" valType="extendedCode"/>
+        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
+        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: CHALLENGE QUESTION APPEARS&amp;#10;#the if statement below ensures that the subsequent if statements (and throwing of triggers)&amp;#10;#only occurs once per trial. That is, only when the stimulus is presented (.status = STARTED) and&amp;#10;#stimTriggerSent is still False. Once a trigger is sent, we change stimTriggerSent to True so that &amp;#10;#the stimulus eeg trigger will not be sent again for this trial&amp;#10;if challengeText1.status == STARTED and not stimTriggerSent:&amp;#10;    stimTriggerSent = True #switch stimTriggerSent to True so that the stimulus eeg trigger will not be sent again this trial&amp;#10;    port.write([0x15]) #hexcode = 21, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="if (((challengeText1.status === PsychoJS.Status.STARTED) &amp;&amp; (! stimTriggerSent))) {&amp;#10;    stimTriggerSent = true;&amp;#10;    port.write([21]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="codeTriggers2" valType="code"/>
+      </CodeComponent>
       <TextComponent name="answerInstruct1">
         <Param name="color" updates="constant" val="black" valType="color"/>
         <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
@@ -850,25 +815,43 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
-    </Routine>
-    <Routine name="passage2">
-      <CodeComponent name="codeTriggers3">
+      <KeyboardComponent name="challengeResponse1">
+        <Param name="allowedKeys" updates="constant" val="'a','b','c','d'" valType="list"/>
+        <Param name="correctAns" updates="constant" val="$firstcorrectAnswer" valType="str"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="discard previous" updates="constant" val="True" valType="bool"/>
+        <Param name="durationEstim" updates="None" val="" valType="num"/>
+        <Param name="forceEndRoutine" updates="constant" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="challengeResponse1" valType="code"/>
+        <Param name="saveStartStop" updates="None" val="True" valType="bool"/>
+        <Param name="startEstim" updates="None" val="" valType="num"/>
+        <Param name="startType" updates="None" val="time (s)" valType="str"/>
+        <Param name="startVal" updates="None" val="0.0" valType="num"/>
+        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
+        <Param name="stopVal" updates="constant" val="" valType="num"/>
+        <Param name="store" updates="constant" val="last key" valType="str"/>
+        <Param name="storeCorrect" updates="constant" val="True" valType="bool"/>
+        <Param name="syncScreenRefresh" updates="constant" val="True" valType="bool"/>
+      </KeyboardComponent>
+      <CodeComponent name="code_2">
         <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin JS Routine" updates="constant" val="stimTriggerSent = false;&amp;#10;" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="#set stimTriggerSent to false at the start of the trial. this way&amp;#10;#when the stimulus is shown, we can change it to True. This variable&amp;#10;#is used to ensure we only throw the stimulus EEG trigger once.&amp;#10;stimTriggerSent = False" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="respTriggerSent = false;&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="respTriggerSent = False" valType="extendedCode"/>
         <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
-        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: TEXT APPEARS&amp;#10;#the first if statement below ensures that the subsequent if statements (and throwing of triggers)&amp;#10;#only occurs once per trial. That is, only when the stimulus is presented (.status = STARTED) and&amp;#10;#stimTriggerSent is still False. Once a trigger is sent, we change stimTriggerSent to True so that &amp;#10;#the stimulus eeg trigger will not be sent again for this trial&amp;#10;if passageText2.status == STARTED and not stimTriggerSent:&amp;#10;    stimTriggerSent = True #switch stimTriggerSent to True so that the stimulus eeg trigger will not be sent again this trial&amp;#10;    port.write([0xb]) #hexcode = 11, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;&amp;#10;&amp;#10;#STIM TRIGGER: TEXT DISAPPEARS&amp;#10;if key_resp.keys: # the participant has proceeded to the next screen (stimulus text disappears)&amp;#10;    port.write([0xa]) #hexcode = 10, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
-        <Param name="Each JS Frame" updates="constant" val="if (((passageText2.status === PsychoJS.Status.STARTED) &amp;&amp; (! stimTriggerSent))) {&amp;#10;    stimTriggerSent = true;&amp;#10;    port.write([11]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;if (key_resp.keys) {&amp;#10;    port.write([10]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="Each Frame" updates="constant" val="#RESPONSE TRIGGER&amp;#10;if not respTriggerSent and challengeResponse1.keys:&amp;#10;    if challengeResponse1.corr == 0 and stimTriggerSent: #error response&amp;#10;        respTriggerSent = True&amp;#10;        port.write([0x1e]) #hexcode = 30, eeg trigger sent&amp;#10;        time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;        port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;    elif challengeResponse1.corr == 1 and stimTriggerSent: #correct response&amp;#10;        respTriggerSent = True&amp;#10;        port.write([0x1f]) #hexcode = 31, eeg trigger sent&amp;#10;        time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;        port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;&amp;#10;continueRoutine = False" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="if (((! respTriggerSent) &amp;&amp; challengeResponse1.keys)) {&amp;#10;    if (((challengeResponse1.corr === 0) &amp;&amp; stimTriggerSent)) {&amp;#10;        respTriggerSent = true;&amp;#10;        port.write([30]);&amp;#10;        time.sleep(PulseWidth);&amp;#10;        port.write([0]);&amp;#10;    } else {&amp;#10;        if (((challengeResponse1.corr === 1) &amp;&amp; stimTriggerSent)) {&amp;#10;            respTriggerSent = true;&amp;#10;            port.write([31]);&amp;#10;            time.sleep(PulseWidth);&amp;#10;            port.write([0]);&amp;#10;        }&amp;#10;    }&amp;#10;}&amp;#10;continueRoutine = false;&amp;#10;" valType="extendedCode"/>
         <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="name" updates="None" val="codeTriggers3" valType="code"/>
+        <Param name="name" updates="None" val="code_2" valType="code"/>
       </CodeComponent>
+    </Routine>
+    <Routine name="passage2">
       <TextComponent name="passageText2">
         <Param name="color" updates="constant" val="black" valType="color"/>
         <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
@@ -894,6 +877,23 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
+      <CodeComponent name="codeTriggers3">
+        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="stimTriggerSent = false;&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="#set stimTriggerSent to false at the start of the trial. this way&amp;#10;#when the stimulus is shown, we can change it to True. This variable&amp;#10;#is used to ensure we only throw the stimulus EEG trigger once.&amp;#10;stimTriggerSent = False" valType="extendedCode"/>
+        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
+        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: CHALLENGE QUESTION APPEARS&amp;#10;#the if statement below ensures that the subsequent if statements (and throwing of triggers)&amp;#10;#only occurs once per trial. That is, only when the stimulus is presented (.status = STARTED) and&amp;#10;#stimTriggerSent is still False. Once a trigger is sent, we change stimTriggerSent to True so that &amp;#10;#the stimulus eeg trigger will not be sent again for this trial&amp;#10;if challengeText1.status == STARTED and not stimTriggerSent:&amp;#10;    stimTriggerSent = True #switch stimTriggerSent to True so that the stimulus eeg trigger will not be sent again this trial&amp;#10;    port.write([0x15]) #hexcode = 21, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="if (((challengeText1.status === PsychoJS.Status.STARTED) &amp;&amp; (! stimTriggerSent))) {&amp;#10;    stimTriggerSent = true;&amp;#10;    port.write([21]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="codeTriggers3" valType="code"/>
+      </CodeComponent>
       <TextComponent name="instructContinue2_2">
         <Param name="color" updates="constant" val="black" valType="color"/>
         <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
@@ -937,6 +937,23 @@
         <Param name="storeCorrect" updates="constant" val="False" valType="bool"/>
         <Param name="syncScreenRefresh" updates="constant" val="True" valType="bool"/>
       </KeyboardComponent>
+      <CodeComponent name="code_5">
+        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="respTriggerSent = false;&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="respTriggerSent = False" valType="extendedCode"/>
+        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
+        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: TEXT DISAPPEARS&amp;#10;if key_resp.keys and not respTriggerSent: # the participant has proceeded to the next screen (stimulus text disappears)&amp;#10;    respTriggerSent = True&amp;#10;    port.write([0xa]) #hexcode = 10, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="if ((key_resp.keys &amp;&amp; (! respTriggerSent))) {&amp;#10;    respTriggerSent = true;&amp;#10;    port.write([10]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="code_5" valType="code"/>
+      </CodeComponent>
       <CodeComponent name="codePassageCount2">
         <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
@@ -981,24 +998,6 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
-      <KeyboardComponent name="challengeResponse2">
-        <Param name="allowedKeys" updates="constant" val="'a','b','c','d'" valType="list"/>
-        <Param name="correctAns" updates="constant" val="$secondcorrectAnswer" valType="str"/>
-        <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="discard previous" updates="constant" val="True" valType="bool"/>
-        <Param name="durationEstim" updates="None" val="" valType="num"/>
-        <Param name="forceEndRoutine" updates="constant" val="True" valType="bool"/>
-        <Param name="name" updates="None" val="challengeResponse2" valType="code"/>
-        <Param name="saveStartStop" updates="None" val="True" valType="bool"/>
-        <Param name="startEstim" updates="None" val="" valType="num"/>
-        <Param name="startType" updates="None" val="time (s)" valType="str"/>
-        <Param name="startVal" updates="None" val="0.0" valType="num"/>
-        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
-        <Param name="stopVal" updates="constant" val="" valType="num"/>
-        <Param name="store" updates="constant" val="last key" valType="str"/>
-        <Param name="storeCorrect" updates="constant" val="True" valType="bool"/>
-        <Param name="syncScreenRefresh" updates="constant" val="True" valType="bool"/>
-      </KeyboardComponent>
       <TextComponent name="challengeOptions2">
         <Param name="color" updates="constant" val="black" valType="color"/>
         <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
@@ -1024,6 +1023,23 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
+      <CodeComponent name="codeTriggers4">
+        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="stimTriggerSent = false;&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="#set stimTriggerSent to false at the start of the trial. this way&amp;#10;#when the stimulus is shown, we can change it to True. This variable&amp;#10;#is used to ensure we only throw the stimulus EEG trigger once.&amp;#10;stimTriggerSent = False" valType="extendedCode"/>
+        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
+        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: CHALLENGE QUESTION APPEARS&amp;#10;#the if statement below ensures that the subsequent if statements (and throwing of triggers)&amp;#10;#only occurs once per trial. That is, only when the stimulus is presented (.status = STARTED) and&amp;#10;#stimTriggerSent is still False. Once a trigger is sent, we change stimTriggerSent to True so that &amp;#10;#the stimulus eeg trigger will not be sent again for this trial&amp;#10;if challengeText1.status == STARTED and not stimTriggerSent:&amp;#10;    stimTriggerSent = True #switch stimTriggerSent to True so that the stimulus eeg trigger will not be sent again this trial&amp;#10;    port.write([0x15]) #hexcode = 21, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="if (((challengeText1.status === PsychoJS.Status.STARTED) &amp;&amp; (! stimTriggerSent))) {&amp;#10;    stimTriggerSent = true;&amp;#10;    port.write([21]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="codeTriggers4" valType="code"/>
+      </CodeComponent>
       <TextComponent name="answerInstruct2">
         <Param name="color" updates="constant" val="black" valType="color"/>
         <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
@@ -1074,22 +1090,40 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="1.1" valType="num"/>
       </TextComponent>
-      <CodeComponent name="codeTriggers4">
+      <KeyboardComponent name="challengeResponse2">
+        <Param name="allowedKeys" updates="constant" val="'a','b','c','d'" valType="list"/>
+        <Param name="correctAns" updates="constant" val="$secondcorrectAnswer" valType="str"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="discard previous" updates="constant" val="True" valType="bool"/>
+        <Param name="durationEstim" updates="None" val="" valType="num"/>
+        <Param name="forceEndRoutine" updates="constant" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="challengeResponse2" valType="code"/>
+        <Param name="saveStartStop" updates="None" val="True" valType="bool"/>
+        <Param name="startEstim" updates="None" val="" valType="num"/>
+        <Param name="startType" updates="None" val="time (s)" valType="str"/>
+        <Param name="startVal" updates="None" val="0.0" valType="num"/>
+        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
+        <Param name="stopVal" updates="constant" val="" valType="num"/>
+        <Param name="store" updates="constant" val="last key" valType="str"/>
+        <Param name="storeCorrect" updates="constant" val="True" valType="bool"/>
+        <Param name="syncScreenRefresh" updates="constant" val="True" valType="bool"/>
+      </KeyboardComponent>
+      <CodeComponent name="code_4">
         <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin JS Routine" updates="constant" val="stimTriggerSent = false;&amp;#10;" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="#set stimTriggerSent to false at the start of the trial. this way&amp;#10;#when the stimulus is shown, we can change it to True. This variable&amp;#10;#is used to ensure we only throw the stimulus EEG trigger once.&amp;#10;stimTriggerSent = False" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="respTriggerSent = false;&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="respTriggerSent = False" valType="extendedCode"/>
         <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
-        <Param name="Each Frame" updates="constant" val="#STIM TRIGGER: CHALLENGE QUESTION APPEARS&amp;#10;#the if statement below ensures that the subsequent if statements (and throwing of triggers)&amp;#10;#only occurs once per trial. That is, only when the stimulus is presented (.status = STARTED) and&amp;#10;#stimTriggerSent is still False. Once a trigger is sent, we change stimTriggerSent to True so that &amp;#10;#the stimulus eeg trigger will not be sent again for this trial&amp;#10;if challengeText2.status == STARTED and not stimTriggerSent:&amp;#10;    stimTriggerSent = True #switch stimTriggerSent to True so that the stimulus eeg trigger will not be sent again this trial&amp;#10;    port.write([0x15]) #hexcode = 21, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;    &amp;#10;#RESPONSE TRIGGER&amp;#10;if challengeResponse2.corr==0: #error response&amp;#10;    port.write([0x1e]) #hexcode = 30, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;elif challengeResponse2.corr==1: #correct response&amp;#10;    port.write([0x1f]) #hexcode = 31, eeg trigger sent&amp;#10;    time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;    port.write([0x00]) #clear trigger port by sending hexcode = 0" valType="extendedCode"/>
-        <Param name="Each JS Frame" updates="constant" val="if (((challengeText2.status === PsychoJS.Status.STARTED) &amp;&amp; (! stimTriggerSent))) {&amp;#10;    stimTriggerSent = true;&amp;#10;    port.write([21]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;}&amp;#10;if ((challengeResponse2.corr === 0)) {&amp;#10;    port.write([30]);&amp;#10;    time.sleep(PulseWidth);&amp;#10;    port.write([0]);&amp;#10;} else {&amp;#10;    if ((challengeResponse2.corr === 1)) {&amp;#10;        port.write([31]);&amp;#10;        time.sleep(PulseWidth);&amp;#10;        port.write([0]);&amp;#10;    }&amp;#10;}&amp;#10;" valType="extendedCode"/>
+        <Param name="Each Frame" updates="constant" val="#RESPONSE TRIGGER&amp;#10;if not respTriggerSent and challengeResponse1.keys:&amp;#10;    if challengeResponse1.corr == 0 and stimTriggerSent: #error response&amp;#10;        respTriggerSent = True&amp;#10;        port.write([0x1e]) #hexcode = 30, eeg trigger sent&amp;#10;        time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;        port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;    elif challengeResponse1.corr == 1 and stimTriggerSent: #correct response&amp;#10;        respTriggerSent = True&amp;#10;        port.write([0x1f]) #hexcode = 31, eeg trigger sent&amp;#10;        time.sleep(PulseWidth) #how long to wait before clearing trigger port&amp;#10;        port.write([0x00]) #clear trigger port by sending hexcode = 0&amp;#10;&amp;#10;continueRoutine = False" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="if (((! respTriggerSent) &amp;&amp; challengeResponse1.keys)) {&amp;#10;    if (((challengeResponse1.corr === 0) &amp;&amp; stimTriggerSent)) {&amp;#10;        respTriggerSent = true;&amp;#10;        port.write([30]);&amp;#10;        time.sleep(PulseWidth);&amp;#10;        port.write([0]);&amp;#10;    } else {&amp;#10;        if (((challengeResponse1.corr === 1) &amp;&amp; stimTriggerSent)) {&amp;#10;            respTriggerSent = true;&amp;#10;            port.write([31]);&amp;#10;            time.sleep(PulseWidth);&amp;#10;            port.write([0]);&amp;#10;        }&amp;#10;    }&amp;#10;}&amp;#10;continueRoutine = false;&amp;#10;" valType="extendedCode"/>
         <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
         <Param name="disabled" updates="None" val="False" valType="bool"/>
-        <Param name="name" updates="None" val="codeTriggers4" valType="code"/>
+        <Param name="name" updates="None" val="code_4" valType="code"/>
       </CodeComponent>
     </Routine>
     <Routine name="readyScreen1">
