@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Timing and Pitch Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-04-21
+# Last Updated: 2022-05-19
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -143,7 +143,7 @@ track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitor
 trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 
 #readAloudTiming_s1_r1_e1
-for(row in 1:nrow(trackerDat$id)){
+for(row in 1:length(trackerDat$id)){
   id <- trackerDat[row, "id"]
   if (id %in% unique(timingSummaryDat$id)){
     trackerDat[trackerDat$id == id, ]$readAloudTiming_s1_r1_e1 = "11"
@@ -154,7 +154,7 @@ for(row in 1:nrow(trackerDat$id)){
 print("Updated readAloudTiming_s1_r1_e1!")
 
 #readAloudPitch_s1_r1_e1
-for(row in 1:nrow(trackerDat$id)){
+for(row in 1:length(trackerDat$id)){
   id <- trackerDat[row, "id"]
   if (id %in% unique(pitchSummaryDat$id)){
     trackerDat[trackerDat$id == id, ]$readAloudPitch_s1_r1_e1 = "11"

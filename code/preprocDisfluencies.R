@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Error Coding Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-04-21
+# Last Updated: 2022-05-19
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -38,15 +38,18 @@ disfluency_out <- paste("disfluencies_subject-by-passage_", today, ".csv", sep="
 #loop over participants (subfolders)
 for(i in 1:length(sub_folders)){
   
-  #identify the list of error-coded files for the participant along with participant id
-  sub_files <- list.files(paste(input_path,sub_folders[i], sep = "", collapse = NULL))
-  id <- strsplit(sub_folders, "-")[[1]][2]
+  #identify the list of error-coded, reconciled files for the participant along with participant id
+  reconciled_folder <- list.files(paste(input_path, sub_folders[i], sep = "", collapse = NULL), pattern = "*reconciled*")
+  sub_files <- list.files(paste(input_path, sub_folders[i],"/", reconciled_folder, sep = "", collapse = NULL))
+  id <- strsplit(sub_folders[i], "-")[[1]][2]
   
-  ### SECTION 3: START PASSAGE LOOP
+  
+  ### SECTION 3: START PASSAGE LOOP ON RECONCILED CODING
   #establish passage name
   for(j in 1:length(sub_files)){
-    errorCoded_file <- paste(input_path, sub_folders[i],"/", sub_files[j], sep = "", collapse = NULL)
-    passage <- strsplit(errorCoded_file, "_")[[1]][2]
+    errorCoded_file <- paste(input_path, sub_folders[i],"/", reconciled_folder, "/", sub_files[j], sep = "", collapse = NULL)
+    errorCoded_filename <- sub_files[j]
+    passage <- strsplit(errorCoded_filename, "_")[[1]][2]
     print(paste("Woohoo! Processing << ", passage, " >> for ", sub_folders[i], "!", sep = "", collapse = NULL))
     
     #load disfluency data onto scaffold
@@ -126,11 +129,12 @@ write.csv(disfluencySummaryDat,paste(out_path, disfluency_out, sep = "", collaps
 
 ### SECTION 5: UPDATE CENTRAL TRACKER FOR STUDY
 #load central tracker
-track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+#track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+track_path <- '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
 trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 
 #readAloudDisfluencies_s1_r1_e1
-for(row in 1:nrow(trackerDat$id)){
+for(row in 1:length(trackerDat$id)){
   id <- trackerDat[row, "id"]
   if (id %in% unique(disfluencySummaryDat$id)){
     trackerDat[trackerDat$id == id, ]$readAloudDisfluencies_s1_r1_e1 = "11"
