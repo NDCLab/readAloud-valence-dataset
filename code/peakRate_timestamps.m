@@ -1,6 +1,6 @@
 %% RWE-EEG: Identifying peakRate time points for syllable onsets
 % Author: Jessica M. Alexander, George A. Buzzell
-% Last updated: 2022-05-24
+% Last updated: 2022-05-25
 % This script imports an audio file and extracts the broad amplitude envelope, then calculates the second derivative
 % (the rate of change of the loudness contours) and identifies local maxima.  These local maxima represent the syllabic
 % onsets as detailed in:
@@ -25,7 +25,7 @@ bark_bands = [1, 20, 100; 2, 100, 200; 3, 200, 300; 4, 300, 400; 5, 400, 510; 6,
     13, 1720, 2000; 14, 2000, 2320; 15, 2320, 2700; 16, 2700, 3150; 17, 3150, 3700; 18, 3700, 4400; ...
     19, 4400, 5300; 20, 5300, 6400; 21, 6400, 7700; 22, 7700, 9500; 23, 9500, 12000; 24, 12000, 15500];
 
-% Filter audio data across 24 Bark bandpass filters, square-rectify, average across bands, re-filter (low=1 Hz, high=10 Hz) to smooth the waveform
+% Filter audio data across 24 Bark bandpass filters, square-rectify, average across bands
 audioDat = zeros(size(y_padded,1), 21);
 
 for band=1:21
@@ -34,16 +34,27 @@ for band=1:21
 end
 
 barkDat = mean(audioDat,2);
-%barkDat = downsample(barkDat, 100);
-
-filteredDat = bandpass(barkDat, [1 10], Fs);
 
 % Remove padding
-smoothDat = filteredDat((size(pad,1)+1):(length(filteredDat)-size(pad,1)),:);
+barkDatTrim = barkDat((size(pad,1)+1):(length(barkDat)-size(pad,1)),:);
+
+% Downsample to 1000 Hz
+downsampleDat = resample(barkDatTrim,10,441);
+Fs_downsample = 1000;
+
+% Re-pad
+pad2 = zeros((1000*10)',1);
+downsampleDat_padded = [pad2; downsampleDat; pad2];
+
+% Re-filter (low=1 Hz, high=10 Hz) to smooth the waveform
+smoothDat = bandpass(downsampleDat_padded, [1 10], Fs_downsample);
+
+% Remove padding
+smoothDatTrim = smoothDat((size(pad2,1)+1):(length(smoothDat)-size(pad2,1)),:);
 
 % Take the second derivative and compute local maxima based on a faster 10 Hz speaking rate
-secondDeriv = diff(smoothDat, 2);
-peakRate = islocalmax(secondDeriv, 'MinSeparation', 4410);
+secondDeriv = diff(smoothDatTrim, 2);
+peakRate = islocalmax(secondDeriv, 'MinSeparation', 100);
 
 % Add time points
 samplePoints = 2:1:(length(y)-1);
