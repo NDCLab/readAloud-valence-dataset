@@ -1,7 +1,7 @@
 # readAloud-valence-dataset PsychoPy/Pavlovia Preprocessing
 # Author: Jessica M. Alexander
 # (DCCS section is based upon a script written by Jessica M. Alexander, George A. Buzzell, Arina Polyanskaya in early 2022)
-# Last Updated: 2022-04-22
+# Last Updated: 2022-06-07
 
 ### SECTION 1: SETTING UP
 #set up date for output file naming
@@ -22,7 +22,7 @@ sub_folders <- list.files(input_path, pattern = "sub")
 #create dataframes for storing output data and define output file names
 #readAloud
 readAloudSummaryDat <- data.frame(matrix(ncol=2, nrow=0))
-colnames(readAloudSummaryDat) <- c("id", "challengeAccuracy")
+colnames(readAloudSummaryDat) <- c("id", "challengeACC")
 readAloud_out_subjectLevel <- paste("readAloud_subject-level_summary_", today, ".csv", sep="", collapse=NULL)
 
 readAloudChallengeDat <- data.frame(matrix(ncol=1, nrow=20))
@@ -52,7 +52,7 @@ readAloud_out_passageLevel <- paste("readAloud_passage-level_summary_", today, "
 
 #ldt
 ldtSummaryDat <- data.frame(matrix(ncol=11, nrow=0))
-colnames(ldtSummaryDat) <- c("id", "ldtAccuracy", "ldtWord_meanACC", "ldtNonce_meanACC", "ldtWordCorr_meanRT", "ldtNonceCorr_meanRT", "ldtWordCorr_logMeanRT", "ldtNonceCorr_logMeanRT", "ldt_costAcc", "ldt_costRT", "ldt_costLogRT")
+colnames(ldtSummaryDat) <- c("id", "ldtACC", "ldtWord_meanACC", "ldtNonce_meanACC", "ldtWordCorr_meanRT", "ldtNonceCorr_meanRT", "ldtWordCorr_logMeanRT", "ldtNonceCorr_logMeanRT", "ldt_costAcc", "ldt_costRT", "ldt_costLogRT")
 ldt_out_subjectLevel <- paste("ldt_subject-level_summary_", today, ".csv", sep="", collapse=NULL)
                                      
 ldtTrialDat <- data.frame(matrix(ncol = 6, nrow = 0))
@@ -64,7 +64,7 @@ dccsSummaryDat <- data.frame(matrix(ncol=22, nrow=0))
 colnames(dccsSummaryDat) <- c("id",
                               "shapePracticePass",
                               "colorPracticePass",
-                              "dccsAccuracy",
+                              "dccsACC",
                               "toShape_meanACC",
                               "toShapePRE_meanACC",
                               "toShapeCorr_meanRT",
@@ -127,22 +127,22 @@ for(i in 1:length(sub_folders)){
     #establish dataframe for answers to challenge questions
     readAloudDatA <- psychopyDatTrim[!is.na(psychopyDatTrim$firstListA),]
     readAloudDatA <- readAloudDatA[c("id", "firstListA", "challengeResponse1.corr")]
-    colnames(readAloudDatA) <- c("id", "passage", "challengeAccuracy")
+    colnames(readAloudDatA) <- c("id", "passage", "challengeACC")
     readAloudDatB <- psychopyDatTrim[!is.na(psychopyDatTrim$secondListA),]
     readAloudDatB <- readAloudDatB[c("id", "secondListA", "challengeResponse2.corr")]
-    colnames(readAloudDatB) <- c("id", "passage", "challengeAccuracy")
+    colnames(readAloudDatB) <- c("id", "passage", "challengeACC")
     
     readAloudDat <- rbind(readAloudDatA, readAloudDatB)
     readAloudDat <- readAloudDat[order(readAloudDat$passage),]
     
     #calculate accuracy for individual participant
-    challengeAccuracy <- mean(readAloudDat$challengeAccuracy)
+    challengeACC <- mean(readAloudDat$challengeACC)
     
     #store output data in summary matrices
-    readAloudSummaryDat[nrow(readAloudSummaryDat) + 1,] <-c(id,challengeAccuracy)
+    readAloudSummaryDat[nrow(readAloudSummaryDat) + 1,] <-c(id,challengeACC)
 
     newcol <- ncol(readAloudChallengeDat) + 1
-    readAloudChallengeDat[newcol] <- readAloudDat$challengeAccuracy
+    readAloudChallengeDat[newcol] <- readAloudDat$challengeACC
     names(readAloudChallengeDat)[newcol] <- id
     
     
@@ -152,7 +152,7 @@ for(i in 1:length(sub_folders)){
     ldtDat <- ldtDat[c("id", "ldtResponse.corr", "ldtResponse.rt", "trials_3.thisN", "ldtStim", "wordType")]
     
     #calculate overall participant accuracy
-    ldtAccuracy <- mean(ldtDat$ldtResponse.corr)
+    ldtACC <- mean(ldtDat$ldtResponse.corr)
     
     #subset the data for word versus nonce trials, create new dataframes for each
     ldtDat_word <- ldtDat[ldtDat$wordType=="word",]
@@ -180,7 +180,7 @@ for(i in 1:length(sub_folders)){
     
     #store output data in summary matrices
     ldtSummaryDat[nrow(dccsSummaryDat) + 1,] <-c(id,
-                                                 ldtAccuracy,
+                                                 ldtACC,
                                                  ldtWord_meanACC,
                                                  ldtNonce_meanACC,
                                                  ldtWordCorr_meanRT,
@@ -233,7 +233,7 @@ for(i in 1:length(sub_folders)){
                          "cue")]
     
     #calculate overall participant accuracy
-    dccsAccuracy <- mean(dccsDat$dccsResponse.corr)
+    dccsACC <- mean(dccsDat$dccsResponse.corr)
       
     #add new vectors to dataframe to enable pairwise comparisons: prior cue, prior cue accuracy, following cue, and following cue accuracy
     priorCue <- c("HOLD", dccsDat$cue)
@@ -319,7 +319,7 @@ for(i in 1:length(sub_folders)){
     dccsSummaryDat[nrow(dccsSummaryDat) + 1,] <-c(id,
                                           shapePracticePass,
                                           colorPracticePass,
-                                          dccsAccuracy,
+                                          dccsACC,
                                           toShape_meanACC,
                                           toShapePRE_meanACC,
                                           toShapeCorr_meanRT,
@@ -389,7 +389,7 @@ trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 
 #readAloudChallenge_s1_r1_e1
 for (row in 1:nrow(readAloudSummaryDat)) {
-  accuracy <- readAloudSummaryDat[row, "challengeAccuracy"]
+  accuracy <- readAloudSummaryDat[row, "challengeACC"]
   id <- readAloudSummaryDat[row, "id"]
   if (accuracy >= 0.7) {
     trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "11"
@@ -401,7 +401,7 @@ print("Updated readAloudChallenge_s1_r1_e1!")
 
 #ldt_s1_r1_e1
 for (row in 1:nrow(ldtSummaryDat)) {
-  accuracy <- ldtSummaryDat[row, "ldtAccuracy"]
+  accuracy <- ldtSummaryDat[row, "ldtACC"]
   id <- ldtSummaryDat[row, "id"]
   if (accuracy >= 0.8) {
     trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "11"
@@ -413,7 +413,7 @@ print("Updated ldt_s1_r1_e1!")
 
 #dccs_s1_r1_e1
 for (row in 1:nrow(dccsSummaryDat)) {
-  accuracy <- dccsSummaryDat[row, "dccsAccuracy"]
+  accuracy <- dccsSummaryDat[row, "dccsACC"]
   id <- dccsSummaryDat[row, "id"]
   shapePass <- dccsSummaryDat[row, "shapePracticePass"]
   colorPass <- dccsSummaryDat[row, "colorPracticePass"]
