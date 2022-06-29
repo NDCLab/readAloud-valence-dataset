@@ -1,7 +1,7 @@
 ﻿variable,description,detail,allowedSuffix,valueType,allowedValues,valueInfo,naValueType,activeStatus,replacement,provenance
 passage,name of the stimulus passage,a specific passage presented during the task,s1_r1_e1,Char,see materials,NA,NA,1,NA,ndclab
-switchType,directionality of the passage switch,indication of directionality of the passage's valence shift,s1_r1_e1,Categorical,"neg2pos, pos2neg","neg2pos, negative to positive | pos2neg, positive to negative",NA,1,NA,ndclab
-questionVal,origin of challenge question,indication of from which passage portion (negative or positive) the challenge question was drawn,s1_r1_e1,Categorical,"neg, pos","neg, negative passage half | pos, positive passage half",NA,1,NA,ndclab
+switchType,directionality of the passage switch,indication of directionality of the passage's valence shift,s1_r1_e1,Char,"neg2pos, pos2neg","neg2pos, negative to positive | pos2neg, positive to negative",NA,1,NA,ndclab
+questionVal,origin of challenge question,indication of from which passage portion (negative or positive) the challenge question was drawn,s1_r1_e1,Char,"neg, pos","neg, negative passage half | pos, positive passage half",NA,1,NA,ndclab
 emoTonePOS,emotional tone of the positive portion of the passage,emotional tone of the positive portion of the passage from LIWC-22,s1_r1_e1,Real,"[0,100]",numbers below 50 suggest a more negative emotional tone,NA,1,NA,liwc2022
 emoToneNEG,emotional tone of the negative portion of the passage,emotional tone of the negative portion of the passage from LIWC-22,s1_r1_e1,Real,"[0,100]",numbers below 50 suggest a more negative emotional tone,NA,1,NA,liwc2022
 fleschALL,Flesch score for entire passage,a measure of reading ease for the entire passage,s1_r1_e1,Real,"[0,100]",see Wikipedia,NA,1,NA,msword-v16.56-mac
@@ -49,7 +49,7 @@ elp_ldtOBS,English Lexicon Project observations for lexical decision,number of o
 elp_nameRT,"z-scored, mean naming latency across all participants who encountered the word in the ELP speeded naming task",average speed with which participants in ELP named stimRoot in the speeded naming task,s1_r1_e1,Real,"[-1,2]",NA,NA,1,NA,elp
 elp_nameACC,"mean accuracy across all participants in the ELP speeded naming, excluding errors and outliers",average accuracy with which participants in ELP named stimRoot in the speeded naming task,s1_r1_e1,Real,"[0,1]",NA,NA,1,NA,elp
 elp_nameOBS,English Lexicon Project observations for speeded naming,"number of observations used to calculate elp_nameRT and elp_nameACC (however, consistently comes back empty from the English Lexicon Project database)",s1_r1_e1,Integer,NA,NA,NA,1,NA,elp
-valenceKousta,"valence category of stimWord (Kousta et al., 2009)",valence categorization used in Kousta et al. (2009),s1_r1_e1,Categorical,"negative, neutral, positive",see Kousta et al. (2009),NA,1,NA,kousta
+valenceKousta,"valence category of stimWord (Kousta et al., 2009)",valence categorization used in Kousta et al. (2009),s1_r1_e1,Char,"negative, neutral, positive",see Kousta et al. (2009),NA,1,NA,kousta
 valenceKoustaExtend,,,,,,,,,,
 valenceANEW,valence rating of stimWord (ANEW),valence rating based on ANEW 2017 for which participants rated words on a scale from 1 (unhappy) to 9 (happy).,s1_r1_e1,Real,"[1,9]",see ANEW,NA,1,NA,anew2017
 arousalANEW,arousal rating of stimWord (ANEW),arousal rating based on ANEW 2017 for which participants rated words on a scale from 1 (calm) to 9 (excited).,s1_r1_e1,Real,"[1,9]",see ANEW,NA,1,NA,anew2017

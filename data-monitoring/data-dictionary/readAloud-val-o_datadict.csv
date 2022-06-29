@@ -7,14 +7,14 @@ ldtPracticeResponse.corr,LDT practice task: accuracy,indication of whether parti
 ldtResponse.corr,LDT task: accuracy,indication of whether participant correctly answered LDT trial,s1_r1_e1,Logical,"0, 1","0, error | 1, correct response",NA,1,NA,direct-pavlovia
 ldtResponse.rt,LDT task: response time,indication of participant response time for LDT trial,s1_r1_e1,Real,"[0,2]",seconds,NA,1,NA,direct-pavlovia
 trials_3.thisN,LDT task: trial count,count through trial loop for LDT task,s1_r1_e1,Integer,"[0,239]",NA,NA,1,NA,direct-pavlovia
-wordType,LDT task: word type,indication of whether cue is real word or nonce,s1_r1_e1,Categorical,word | nonce,"word, real word | nonce, not a real word",NA,1,NA,direct-pavlovia
+wordType,LDT task: word type,indication of whether cue is real word or nonce,s1_r1_e1,Char,word | nonce,"word, real word | nonce, not a real word",NA,1,NA,direct-pavlovia
 shapePracticeResponse.corr,DCCS task shape practice: accuracy,indication of whether participant correctly answered DCCS shape practice trial,s1_r1_e1,Logical,"0, 1","0, error | 1, correct response",NA,1,NA,direct-pavlovia
 trials_4.thisN,DCCS task shape practice: trial count,count through trial loop for DCCS shape practice,s1_r1_e1,Integer,"[0,3]",NA,NA,1,NA,direct-pavlovia
 colorPracticeResponse.corr,DCCS task color practice: accuracy,indication of whether participant correctly answered DCCS color practice trial,s1_r1_e1,Logical,"0, 1","0, error | 1, correct response",NA,1,NA,direct-pavlovia
 trials_5.thisN,DCCS task color practice: trial count,count through trial loop for DCCS color practice,s1_r1_e1,Integer,"[0,3]",NA,NA,1,NA,direct-pavlovia
 dccsResponse.corr,DCCS task: accuracy,indication of whether participant correctly answered DCCS trial,s1_r1_e1,Logical,"0, 1","0, error | 1, correct response",NA,1,NA,direct-pavlovia
 dccsResponse.rt,DCCS task: response time,indication of participant response time for DCCS trial,s1_r1_e1,Real,"[0,10]",seconds,NA,1,NA,direct-pavlovia
-cue,DCCS task: cue type,indication of whether trial cue is shape or color,s1_r1_e1,Categorical,SHAPE | COLOR,"SHAPE, participant to match shape | COLOR, participant to match color",NA,1,NA,direct-pavlovia
+cue,DCCS task: cue type,indication of whether trial cue is shape or color,s1_r1_e1,Char,SHAPE | COLOR,"SHAPE, participant to match shape | COLOR, participant to match color",NA,1,NA,direct-pavlovia
 groupAvg,"readAloud task, passage-level: cross-participant accuracy",overview of cross-participant accuracy for each reading passage,s1_r1_e1,Real,"[0,1]",NA,NA,1,NA,code-preprocPavlovia.R
 challengeAccuracy,"readAloud task, subject-level: average challenge question accuracy",average of participant's accuracy on challenge questions,s1_r1_e1,Real,"[0,1]",NA,NA,1,NA,code-preprocPavlovia.R
 ldtAccuracy,"LDT task, subject-level: overall participant accuracy",average of participant's accuracy on all LDT task trials,s1_r1_e1,Real,"[0,1]",NA,NA,1,NA,code-preprocPavlovia.R
