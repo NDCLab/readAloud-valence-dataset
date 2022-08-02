@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Error Coding Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-05-19
+# Last Updated: 2022-08-02
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -140,7 +140,7 @@ trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 for(row in 1:length(trackerDat$id)){
   id <- trackerDat[row, "id"]
   if (id %in% unique(disfluencySummaryDat$id)){
-    trackerDat[trackerDat$id == id, ]$readAloudDisfluencies_s1_r1_e1 = "11"
+    trackerDat[trackerDat$id == id, ]$readAloudDisfluencies_s1_r1_e1 = "1"
   } else {
     trackerDat[trackerDat$id == id, ]$readAloudDisfluencies_s1_r1_e1 = "0"
   }

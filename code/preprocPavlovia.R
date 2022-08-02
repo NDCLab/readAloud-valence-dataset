@@ -1,7 +1,7 @@
 # readAloud-valence-dataset PsychoPy/Pavlovia Preprocessing
 # Author: Jessica M. Alexander
 # (DCCS section is based upon a script written by Jessica M. Alexander, George A. Buzzell, Arina Polyanskaya in early 2022)
-# Last Updated: 2022-06-07
+# Last Updated: 2022-08-02
 
 ### SECTION 1: SETTING UP
 #set up date for output file naming
@@ -384,7 +384,8 @@ write.csv(dccsTrialDat,paste(out_path,dccs_out_trialLevel, sep = "", collapse = 
 
 ### SECTION 8: UPDATE CENTRAL TRACKER FOR STUDY
 #load central tracker
-track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+#track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+track_path <- '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
 trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 
 #readAloudChallenge_s1_r1_e1
@@ -392,9 +393,9 @@ for (row in 1:nrow(readAloudSummaryDat)) {
   accuracy <- readAloudSummaryDat[row, "challengeACC"]
   id <- readAloudSummaryDat[row, "id"]
   if (accuracy >= 0.7) {
-    trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "11"
+    trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "1"
   } else {
-    trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "19"
+    trackerDat[trackerDat$id == id, ]$readAloudChallenge_s1_r1_e1 = "0"
   } 
 }
 print("Updated readAloudChallenge_s1_r1_e1!")
@@ -404,9 +405,9 @@ for (row in 1:nrow(ldtSummaryDat)) {
   accuracy <- ldtSummaryDat[row, "ldtACC"]
   id <- ldtSummaryDat[row, "id"]
   if (accuracy >= 0.8) {
-    trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "11"
+    trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "1"
   } else {
-    trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "19"
+    trackerDat[trackerDat$id == id, ]$ldt_s1_r1_e1 = "0"
   } 
 }
 print("Updated ldt_s1_r1_e1!")
@@ -418,9 +419,9 @@ for (row in 1:nrow(dccsSummaryDat)) {
   shapePass <- dccsSummaryDat[row, "shapePracticePass"]
   colorPass <- dccsSummaryDat[row, "colorPracticePass"]
   if (accuracy >= 0.8 && shapePass && colorPass) {
-    trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "11"
+    trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "1"
   } else {
-    trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "19"
+    trackerDat[trackerDat$id == id, ]$dccs_s1_r1_e1 = "0"
   } 
 }
 print("Updated dccs_s1_r1_e1!")
