@@ -1,7 +1,3 @@
 # Raw Source Data
 
-### Instructions
-This folder contains the untouched data, as collected.
-
-
-### Project Notes
+This project is currently in data collection and data are not yet publicly available.
