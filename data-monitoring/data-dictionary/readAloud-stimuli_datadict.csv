@@ -32,7 +32,6 @@ logFreqSUB,log frequency of stimRoot (SUBTLEX),"log of the frequency of the word
 noSyll,"length, in syllables, of stimRoot","number of syllables in the main pronunciation of the word lemma, extracted from the English Lexicon Project",s1_r1_e1,Integer,"[1,6]",NA,NA,1,NA,elp
 noLett,"length, in letters, of stimWord","length, in letters, of stimWord",s1_r1_e1,Integer,"[1,15]",NA,NA,1,NA,msexcel
 pos,part of speech for stimRoot,"possible parts of speech for the word lemma, as extracted from the English Lexicon project (a vertical bar is used to separate alternatives when a given word can be used as multiple parts of speech)",s1_r1_e1,Char,"JJ, NN, RB, VB, encl, minor, ?","JJ, adjective | NN, noun | RB, adverb | VB, verb | encl, enclitic | minor, all other parts of speech | ?, unknown",NA,1,NA,elp
-surprisal,,,,,,,,,,
 arousalWAR,arousal rating of stimRoot (Warriner),arousal rating based on Warriner et al. (2013) for which participants rated words on a scale from 1 (calm) to 9 (excited).,s1_r1_e1,Real,"[1,9]",see Warriner et al. (2013),NA,1,NA,elp
 dominanceWAR,dominance rating of stimRoot (Warriner),dominance rating based on Warriner et al. (2013) for which participants rated words on a scale from 1 (controlled) to 9 (in control).,s1_r1_e1,Real,"[1,9]",see Warriner et al. (2013),NA,1,NA,elp
 aoa,age of acquisition of stimRoot,"average age that stimRoot is learned, from the English Lexicon Project",s1_r1_e1,Real,"[2,17]",see English Lexicon Project,NA,1,NA,elp
@@ -49,7 +48,7 @@ elp_ldtOBS,English Lexicon Project observations for lexical decision,number of o
 elp_nameRT,"z-scored, mean naming latency across all participants who encountered the word in the ELP speeded naming task",average speed with which participants in ELP named stimRoot in the speeded naming task,s1_r1_e1,Real,"[-1,2]",NA,NA,1,NA,elp
 elp_nameACC,"mean accuracy across all participants in the ELP speeded naming, excluding errors and outliers",average accuracy with which participants in ELP named stimRoot in the speeded naming task,s1_r1_e1,Real,"[0,1]",NA,NA,1,NA,elp
 elp_nameOBS,English Lexicon Project observations for speeded naming,"number of observations used to calculate elp_nameRT and elp_nameACC (however, consistently comes back empty from the English Lexicon Project database)",s1_r1_e1,Integer,NA,NA,NA,1,NA,elp
-valenceKousta,"valence category of stimWord (Kousta et al., 2009)",valence categorization used in Kousta et al. (2009),s1_r1_e1,Char,"negative, neutral, positive",see Kousta et al. (2009),NA,1,NA,kousta
+valenceKousta,"valence category of stimWord (Kousta et al., 2009)",valence categorization used in Kousta et al. (2009),s1_r1_e1,Char,"negative, neutral, positive",see Kousta et al. (2009),NA,1,NA,kousta2009
 valenceKoustaExtend,,,,,,,,,,
 valenceANEW,valence rating of stimWord (ANEW),valence rating based on ANEW 2017 for which participants rated words on a scale from 1 (unhappy) to 9 (happy).,s1_r1_e1,Real,"[1,9]",see ANEW,NA,1,NA,anew2017
 arousalANEW,arousal rating of stimWord (ANEW),arousal rating based on ANEW 2017 for which participants rated words on a scale from 1 (calm) to 9 (excited).,s1_r1_e1,Real,"[1,9]",see ANEW,NA,1,NA,anew2017

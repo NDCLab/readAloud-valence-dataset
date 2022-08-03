@@ -23,7 +23,7 @@ In addition, participants answered questions on:
 
 
 ## Roadmap
-**Release 1:** anticipated Q1 2022
+**Release 1:** anticipated Q4 2022
 
 
 ## Work in Development
@@ -35,6 +35,7 @@ This `main` branch contains completed releases for this project. For all work-in
 | ---  | ---  |
 | Jessica M. Alexander | conceptualization, resources, project administration, data curation |
 | Dr. George A. Buzzell | supervision |
+| Ana Lopez-Nuñez, Anfernee Duncombe, Brittney Rodriguez, Ana García Morazzani, Laura Gallardo, Maria Rodriguez | data coding |
 
 Learn more about us [here](https://www.ndclab.com/people).
 

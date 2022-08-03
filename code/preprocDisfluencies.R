@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Error Coding Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-08-02
+# Last Updated: 2022-08-03
 
 ### SECTION 1: SETTING UP
 library(readxl)
@@ -52,21 +52,21 @@ for(i in 1:length(sub_folders)){
     for(j in 1:length(sub_files)){
       errorCoded_file <- paste(input_path, sub_folders[i],"/", reconciled_folder, "/", sub_files[j], sep = "", collapse = NULL)
       errorCoded_filename <- sub_files[j]
-      passage <- strsplit(errorCoded_filename, "_")[[1]][2]
+      passage <- strsplit(errorCoded_filename, "_")[[1]][1]
       print(paste("Woohoo! Processing << ", passage, " >> for ", sub_folders[i], "!", sep = "", collapse = NULL))
       
       #load disfluency data onto scaffold
       scaffold <- read_xlsx(blank_scaffolds, sheet=passage)
       colnameVector <- colnames(scaffold) #capture column names for renaming passageErrors
       
-      errorData <- read_xlsx(errorCoded_file, sheet=NULL, range=anchored("B2", dim=c(10, dim(scaffold)[1]), col_names=FALSE))
+      errorData <- read_xlsx(errorCoded_file, sheet=NULL, range=anchored("B2", dim=c(9, dim(scaffold)[1]), col_names=FALSE))
       errorDataT <- t(errorData) #transpose matrix to align with scaffold
-      colnames(errorDataT) <- c("mispron", "wordstress", "duplicate", "falsestart", "insertion", "hesitation", "elongation", "omission","flipped")
+      colnames(errorDataT) <- c("mispron", "wordstress", "duplicate", "insertion", "hesitation", "elongation", "omission","flipped")
   
       passageErrors <- cbind(scaffold, errorDataT)
       
       #add column to indicate all disfluent syllables
-      passageErrors$disfluent <- rowSums(passageErrors[,6:14])>0
+      passageErrors$disfluent <- rowSums(passageErrors[,6:13])>0
       
       #calculate percentage disfluency in each passage half
       #first half
