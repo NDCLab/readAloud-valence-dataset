@@ -23,7 +23,6 @@ readAloud-valence-dataset
 ├── CONTRIBUTING.md
 ├── data-monitoring
     ├──data-monitoring-log.md
-    ├──data-monitoring-protocol.md
     ├──postprocessing-check
     ├──results-check
 ├── derivatives
@@ -34,13 +33,11 @@ readAloud-valence-dataset
     ├──readAloud-ldt
           ├──scripts
           ├──stimuli
+               ├──eeg-pilot
                ├──ldt
                ├──readAloud
-├── notebook.md
 ├── README.md
 ├── sourcedata
-    ├──checked
-    ├──raw
 ```
 
 ### Container
