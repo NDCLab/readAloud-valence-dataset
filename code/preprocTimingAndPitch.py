@@ -9,6 +9,7 @@ import pandas as pd
 import parselmouth
 import re
 from datetime import date
+import gnupg
 
 today = date.today()
 today_formatted = today.strftime("%Y-%m-%d")
@@ -53,25 +54,37 @@ def extract_parselmouth(sub_id, pitch, df, newdf):
   
   return dfout
 
+#function to decrypt the wav file
+def decrypt_wav(audiopath):
+  stream = open(audiopath, 'rb')
+  decrypted_wav = gpg.decrypt_file(stream)
+  return decrypted_wav
+
 #function to run each participant
 def run_sub(sub, filelist, zoompath, timestamps, dfmain):
   filename = filelist[sub]
   coded_filepath = timestamps + filename
   subject = filename.split("_")[0]
   sub_id = int(subject.split("-")[1])
-  subzoom = os.listdir(zoompath + subject)
-  r = re.compile(".*wav")
-  subwav = list(filter(r.match, subzoom))[0]
-  audio = parselmouth.Sound(zoompath + subject + "/" + subwav)
+  subzoom = os.listdir(zoompath + subject) #list of all files in subject's zoom folder
+  r = re.compile(".*wav.gpg")
+  subwav = list(filter(r.match, subzoom))[0] #find the encrypted .wav
+  audiopath = zoompath + subject + "/" + subwav
+  decrypted_wav = decrypt_wav(audiopath) #decrypt the .wav file
+  audio = parselmouth.Sound(decrypted_wav) #feed decrypted .wav file to Parselmouth
   df = pd.read_excel(coded_filepath, header=0)
   npdf = df.to_numpy()
-  pitch = audio.to_pitch_ac()
+  pitch = audio.to_pitch_ac() #extract Parselmouth pitch object
   
-  newdf = create_newdf(npdf)
+  newdf = create_newdf(npdf) #create subject scaffold df
   
-  dfout = extract_parselmouth(sub_id, pitch, df, newdf)
+  dfout = extract_parselmouth(sub_id, pitch, df, newdf) #extract all sub data points from audio file with Parselmouth
 
   dfmain = np.vstack((dfmain, dfout)) #output array and append to dfmain
+  
+  x = re.compile(".*wav") #find the decrypted .wav file
+  unencrypted_wave = list(filter(x.match, subzoom))[0]
+  os.remove(unencrypted_wave) #delete the decrypted .wav file
   
   return dfmain
 
