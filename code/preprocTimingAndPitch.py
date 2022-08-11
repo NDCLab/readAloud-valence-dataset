@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Timing and Pitch Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-08-03
+# Last Updated: 2022-08-11
 
 ### SECTION 1: SETTING UP
 import numpy as np
@@ -90,10 +90,17 @@ def run_sub(sub, filelist, zoompath, timestamps, dfmain):
 
 ### SECTION 2: FILE PATHS AND INITIALIZATION
 #capture list of coded files
-timestamps = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/"
-zoompath = "/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/zoom/"
+#hpc
+timestamps = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/"
+zoompath = "/home/data/NDClab/datasets/readAloud-valence-dataset/sourcedata/checked/zoom/"
+outpath = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
+
+#local
+#timestamps = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/"
+#zoompath = "/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/zoom/"
+#outpath = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
+
 filelist = os.listdir(timestamps)
-outpath = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
 
 #initialize empty array
 dfmain = np.empty((0,11))

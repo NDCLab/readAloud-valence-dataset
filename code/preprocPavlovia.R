@@ -10,11 +10,11 @@ today <- format(today, "%Y%m%d")
 
 #set up directories for input/output data
 #hpc
-#input_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/sourcedata/checked/pavlovia/'
-#out_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/'
+input_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/sourcedata/checked/pavlovia/'
+out_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/'
 #local
-input_path <- '/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/pavlovia/'
-out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/'
+#input_path <- '/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/pavlovia/'
+#out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/'
 
 #identify participant folders within input dir
 sub_folders <- list.files(input_path, pattern = "sub")
@@ -384,8 +384,8 @@ write.csv(dccsTrialDat,paste(out_path,dccs_out_trialLevel, sep = "", collapse = 
 
 ### SECTION 8: UPDATE CENTRAL TRACKER FOR STUDY
 #load central tracker
-#track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
-track_path <- '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+#track_path <- '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
 trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 
 #readAloudChallenge_s1_r1_e1
