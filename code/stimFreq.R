@@ -1,16 +1,20 @@
 # readAloud-valence-dataset Stimuli Frequency
 # Authors: Jessica M. Alexander
-# Last Updated: 2022-08-09
+# Last Updated: 2022-08-11
 
 
 ### SECTION 1: SETTING UP
 library(readxl)
 library(ggplot2)
 
-stimfile <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx"
-switchDat <- read_xlsx(stimfile, sheet="switches", skip=1, na="#")
+#hpc
+stimfile <- "/home/data/NDClab/datasets/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx"
+passage_list <- list.files("/home/data/NDClab/datasets/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input")
+#local
+#stimfile <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx"
+#passage_list <- list.files("/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input")
 
-passage_list <- list.files("/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input")
+switchDat <- read_xlsx(stimfile, sheet="switches", skip=1, na="#")
 
 passages <- c()
 for(i in 1:length(passage_list)){
