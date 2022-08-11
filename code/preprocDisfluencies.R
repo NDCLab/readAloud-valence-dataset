@@ -11,13 +11,13 @@ today <- format(today, "%Y%m%d")
 
 #set up directories for input/output data
 #hpc
-#blank_scaffolds <- '/home/data/NDClab/datasets/readAloud-valence-dataset/code/scaffolds.xlsx'
-#input_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
-#out_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/'
+blank_scaffolds <- '/home/data/NDClab/datasets/readAloud-valence-dataset/code/scaffolds.xlsx'
+input_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
+out_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/'
 #local
-blank_scaffolds <- '/Users/jalexand/github/readAloud-valence-dataset/code/scaffolds.xlsx'
-input_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
-out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/'
+#blank_scaffolds <- '/Users/jalexand/github/readAloud-valence-dataset/code/scaffolds.xlsx'
+#input_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/error-coding/'
+#out_path <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/'
 
 #identify participant folders within input dir
 sub_folders <- list.files(input_path, pattern = "sub")
@@ -132,8 +132,8 @@ write.csv(disfluencySummaryDat,paste(out_path, disfluency_out, sep = "", collaps
 
 ### SECTION 5: UPDATE CENTRAL TRACKER FOR STUDY
 #load central tracker
-#track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
-track_path <- '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+track_path <- '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
+#track_path <- '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
 trackerDat <- read.csv(track_path, header=TRUE, check.names=FALSE)
 
 #readAloudDisfluencies_s1_r1_e1
