@@ -1,21 +1,64 @@
 # readAloud-valence-dataset Stimuli Frequency
 # Authors: Jessica M. Alexander
-# Last Updated: 2022-08-11
+# Last Updated: 2022-08-18
 
 
 ### SECTION 1: SETTING UP
 library(readxl)
 library(ggplot2)
 
-#hpc
-stimfile <- "/home/data/NDClab/datasets/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx"
-passage_list <- list.files("/home/data/NDClab/datasets/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input")
 #local
-#stimfile <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx"
-#passage_list <- list.files("/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input")
+passage_list <- list.files("/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input")
 
-switchDat <- read_xlsx(stimfile, sheet="switches", skip=1, na="#")
+readAloudStimChar <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx"
+ldtWordList <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/ldt/ldt_wordList.csv"
+warrinerList <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/resources/BRM-emot-submit_downloaded_2021-08-08.csv"
+koustaCatList <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/resources/kousta-categories.csv"
+extendKoustaList <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/resources/valence_AnEW+_2796.xlsx"
+SUBList <- "/Users/jalexand/github/readAloud-valence-dataset/materials/readAloud-ldt/stimuli/resources/SUBTLEXus74286wordstextversion.txt" #downloaded from https://www.ugent.be/pp/experimentele-psychologie/en/research/documents/subtlexus on 06/13/2022
 
+switchDat <- read_xlsx(readAloudStimChar, sheet="switches", skip=1, na="#")
+ldtDat <- read.csv(ldtWordList)
+warrinerDat <- read.csv(warrinerList)
+koustaCatDat <- read.csv(koustaCatList)
+extKoustaDat <- read_xlsx(extendKoustaList, sheet="Sheet1")
+subtlexus <- read.table(SUBList, header=TRUE)
+subtlexus$Word <- tolower(subtlexus$Word)
+
+
+
+### SECTION 2: LEXICAL DECISION TASK
+ldtDat <- ldtDat[which(ldtDat$wordType=='word'),]
+
+for(a in 1:nrow(ldtDat)){
+  ldtDat$freq[a] <- subtlexus$Lg10WF[match(ldtDat$ldtStim[a], subtlexus$Word)]
+  ldtDat$valenceWAR[a] <- warrinerDat$V.Mean.Sum[match(ldtDat$ldtStim[a], warrinerDat$Word)]
+  ldtDat$valenceKOU[a] <- extKoustaDat$val[match(ldtDat$ldtStim[a], extKoustaDat$word)]
+  ldtDat$koustaCat[a] <- koustaCatDat$valenceKousta[match(ldtDat$ldtStim[a], koustaCatDat$stimWord)]
+  ldtDat$length[a] <- nchar(ldtDat$ldtStim[a])
+  if(is.na(ldtDat$valenceWAR[a])){next}else if(ldtDat$valenceWAR[a]>5){ldtDat$binary[a] <- 'pos'}else{ldtDat$binary[a] <- 'neg'}
+}
+
+ldtDat <- ldtDat[,-c(2:3)]
+
+#frequency
+ggplot(data=ldtDat, aes(x=koustaCat, y=freq)) + geom_boxplot()
+t.test(ldtDat$freq[which(ldtDat$koustaCat=='positive')], ldtDat$freq[which(ldtDat$koustaCat=='negative')])
+t.test(ldtDat$freq[which(ldtDat$koustaCat=='positive')], ldtDat$freq[which(ldtDat$koustaCat=='neutral')])
+t.test(ldtDat$freq[which(ldtDat$koustaCat=='neutral')], ldtDat$freq[which(ldtDat$koustaCat=='negative')])
+
+ggplot(data=ldtDat, aes(x=binary, y=freq)) + geom_boxplot()
+t.test(ldtDat$freq[which(ldtDat$binary=='pos')], ldtDat$freq[which(ldtDat$binary=='neg')])
+
+#length
+ggplot(data=ldtDat, aes(x=koustaCat, y=length)) + geom_boxplot()
+
+#valence
+ggplot(data=ldtDat, aes(x=valenceWAR, y=valenceKOU, color=koustaCat)) + geom_point()
+ggplot(data=ldtDat, aes(x=valenceWAR, y=freq, color=koustaCat)) + geom_point()
+
+
+### SECTION 3: READALOUD TASK
 passages <- c()
 for(i in 1:length(passage_list)){
   passages <- c(passages, strsplit(passage_list[i], "_")[[1]][1])
@@ -29,10 +72,11 @@ colnames(df) <- c("passage",
                    "avgFreq",
                    "sdFreq")
 
-### SECTION 2: CALCULATE PER PASSAGE FREQUENCIES
+
+#calculate per passage frequencies
 for(j in 1:length(passages)){
   passage <- passages[j]
-  passageDat <- read_xlsx(stimfile, sheet=passage, skip=1, na="#") #read in passage data
+  passageDat <- read_xlsx(readAloudStimChar, sheet=passage, skip=1, na="#") #read in passage data
   switchType <- switchDat$switchType[match(passage, switchDat$passage)] #identify passage switch type (neg2pos or pos2neg)
   preSwitchVal <- substr(switchType, 1, 3) #identify valence of preswitch passage half
   postSwitchVal <-substr(switchType, 5, 7) #identify valence of postswitch passage half
@@ -54,6 +98,11 @@ for(j in 1:length(passages)){
   df[nrow(df) + 1,] <- c(vectorPost)
 }
 
+df$avgFreq <- as.numeric(df$avgFreq)
+df$sdFreq <- as.numeric(df$sdFreq)
+
+#plot
+ggplot(data=df, aes(x=position, y=avgFreq, fill=valence)) + geom_boxplot()
 
 ### SECTION 3: CALCULATE GRAND MEANS
 dfPosPre <- df[df$position=="pre" & df$valence=="pos",] #subset into positive, preswitch data
@@ -108,3 +157,11 @@ posPrevPostSd <- t.test(x=as.numeric(dfPosPre$sdFreq), y=as.numeric(dfPosPost$sd
 negPrevPostSd <- t.test(x=as.numeric(dfNegPre$sdFreq), y=as.numeric(dfNegPost$sdFreq), alternative="two.sided")
 prePosvNegSd <- t.test(x=as.numeric(dfPosPre$sdFreq), y=as.numeric(dfNegPre$sdFreq), alternative="two.sided")
 postPosvNegSd <- t.test(x=as.numeric(dfPosPost$sdFreq), y=as.numeric(dfNegPost$sdFreq), alternative="two.sided")
+
+
+#NONSENSE
+for(i in 1:nrow(warrinerDat)){
+  warrinerDat$freq[i] <- subtlexus$Lg10WF[match(warrinerDat$Word[i], subtlexus$Word)]
+}
+
+ggplot(data=warrinerDat, aes(x=V.Mean.Sum, y=freq)) + geom_point() + geom_smooth(method='lm')
