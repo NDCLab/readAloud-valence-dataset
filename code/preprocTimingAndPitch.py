@@ -78,19 +78,29 @@ def run_sub(sub, filelist, zoompath, timestamps, dfmain):
 
 ### SECTION 2: FILE PATHS AND INITIALIZATION
 #capture list of coded files
-timestamps = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/"
+timestamps_ja = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/ja/"
+timestamps_lg = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/lg/"
+timestamps_mr = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/mr/"
 zoompath = "/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/zoom/"
 outpath = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
 
-filelist = os.listdir(timestamps)
+filelist_ja = os.listdir(timestamps_ja)
+filelist_lg = os.listdir(timestamps_lg)
+filelist_mr = os.listdir(timestamps_mr)
 
 #initialize empty array
 dfmain = np.empty((0,11))
 
-### SECTION 3: START PARTICIPANT LOOP
+### SECTION 3: RUN THREE PARTICIPANT LOOPS (one for each coder)
 #loop over subjects to read in coded timestamps and extract reading times and pitch information
-for sub in range(len(filelist)):
-  dfmain = run_sub(sub, filelist, zoompath, timestamps, dfmain)
+for sub in range(len(filelist_ja)):
+  dfmain = run_sub(sub, filelist_ja, zoompath, timestamps_ja, dfmain)
+  
+for sub in range(len(filelist_lg)):
+  dfmain = run_sub(sub, filelist_lg, zoompath, timestamps_lg, dfmain)
+  
+for sub in range(len(filelist_mr)):
+  dfmain = run_sub(sub, filelist_mr, zoompath, timestamps_mr, dfmain)
 
 ### SECTION 4: OUTPUT DATA
 columns = ['id', 'readStart','switchWord','readEnd', 'timeFirst', 'timeSecond', 'pitchMeanFirst', 'pitchSdFirst', 'pitchMeanSecond', 'pitchSdSecond', 'passage']
