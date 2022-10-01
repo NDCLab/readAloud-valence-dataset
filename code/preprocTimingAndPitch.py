@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Timing and Pitch Preprocessing
 # Author: Jessica M. Alexander
-# Last Updated: 2022-08-11
+# Last Updated: 2022-09-06
 
 ### SECTION 1: SETTING UP
 import numpy as np
@@ -9,7 +9,6 @@ import pandas as pd
 import parselmouth
 import re
 from datetime import date
-import gnupg
 
 today = date.today()
 today_formatted = today.strftime("%Y-%m-%d")
@@ -32,6 +31,8 @@ def extract_parselmouth(sub_id, pitch, df, newdf):
     
     if np.isnan(switchWord):
       continue #cannot calculate any passage data if missing timestamp for switchWord
+    if np.isnan(readStart) & np.isnan(readEnd):
+      continue #cannot calculate any passage data if missing timestamp for both start and finish
     elif np.isnan(readEnd):
       newdf[row, 3] = switchWord - readStart #first half reading time
       newdf[row, 5] = parselmouth.praat.call(pitch, "Get mean", readStart, switchWord, "Hertz") #first half mean pitch
@@ -54,12 +55,6 @@ def extract_parselmouth(sub_id, pitch, df, newdf):
   
   return dfout
 
-#function to decrypt the wav file
-def decrypt_wav(audiopath):
-  stream = open(audiopath, 'rb')
-  decrypted_wav = gpg.decrypt_file(stream)
-  return decrypted_wav
-
 #function to run each participant
 def run_sub(sub, filelist, zoompath, timestamps, dfmain):
   filename = filelist[sub]
@@ -67,11 +62,8 @@ def run_sub(sub, filelist, zoompath, timestamps, dfmain):
   subject = filename.split("_")[0]
   sub_id = int(subject.split("-")[1])
   subzoom = os.listdir(zoompath + subject) #list of all files in subject's zoom folder
-  r = re.compile(".*wav.gpg")
-  subwav = list(filter(r.match, subzoom))[0] #find the encrypted .wav
-  audiopath = zoompath + subject + "/" + subwav
-  decrypted_wav = decrypt_wav(audiopath) #decrypt the .wav file
-  audio = parselmouth.Sound(decrypted_wav) #feed decrypted .wav file to Parselmouth
+  audiopath = zoompath + subject + "/" + subzoom[0]
+  audio = parselmouth.Sound(audiopath) #feed .wav file to Parselmouth
   df = pd.read_excel(coded_filepath, header=0)
   npdf = df.to_numpy()
   pitch = audio.to_pitch_ac() #extract Parselmouth pitch object
@@ -82,67 +74,36 @@ def run_sub(sub, filelist, zoompath, timestamps, dfmain):
 
   dfmain = np.vstack((dfmain, dfout)) #output array and append to dfmain
   
-  x = re.compile(".*wav") #find the decrypted .wav file
-  unencrypted_wave = list(filter(x.match, subzoom))[0]
-  os.remove(unencrypted_wave) #delete the decrypted .wav file
-  
   return dfmain
 
 ### SECTION 2: FILE PATHS AND INITIALIZATION
 #capture list of coded files
-#hpc
-timestamps = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/"
-zoompath = "/home/data/NDClab/datasets/readAloud-valence-dataset/sourcedata/checked/zoom/"
-outpath = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
+timestamps_ja = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/ja/"
+timestamps_lg = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/lg/"
+timestamps_mr = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/mr/"
+zoompath = "/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/zoom/"
+outpath = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
 
-#local
-#timestamps = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/coders/"
-#zoompath = "/Users/jalexand/github/readAloud-valence-dataset/sourcedata/checked/zoom/"
-#outpath = "/Users/jalexand/github/readAloud-valence-dataset/derivatives/preprocessed/valence-timing/"
-
-filelist = os.listdir(timestamps)
+filelist_ja = os.listdir(timestamps_ja)
+filelist_lg = os.listdir(timestamps_lg)
+filelist_mr = os.listdir(timestamps_mr)
 
 #initialize empty array
 dfmain = np.empty((0,11))
 
-### SECTION 3: START PARTICIPANT LOOP
+### SECTION 3: RUN THREE PARTICIPANT LOOPS (one for each coder)
 #loop over subjects to read in coded timestamps and extract reading times and pitch information
-for sub in range(len(filelist)):
-  dfmain = run_sub(sub, filelist, zoompath, timestamps, dfmain)
+for sub in range(len(filelist_ja)):
+  dfmain = run_sub(sub, filelist_ja, zoompath, timestamps_ja, dfmain)
+  
+for sub in range(len(filelist_lg)):
+  dfmain = run_sub(sub, filelist_lg, zoompath, timestamps_lg, dfmain)
+  
+for sub in range(len(filelist_mr)):
+  dfmain = run_sub(sub, filelist_mr, zoompath, timestamps_mr, dfmain)
 
 ### SECTION 4: OUTPUT DATA
 columns = ['id', 'readStart','switchWord','readEnd', 'timeFirst', 'timeSecond', 'pitchMeanFirst', 'pitchSdFirst', 'pitchMeanSecond', 'pitchSdSecond', 'passage']
 combodf = pd.DataFrame(dfmain, columns=columns)
 combodf['id'] = combodf['id'].astype(int)
-combodf.to_csv(outpath + "timingpitch_subject-by-passage" + today_formatted + ".csv", index=False)
-
-### SECTION 5: UPDATE CENTRAL TRACKER FOR STUDY
-#load central tracker
-#track_path = '/home/data/NDClab/datasets/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
-track_path = '/Users/jalexand/github/readAloud-valence-dataset/data-monitoring/central-tracker_readAloud-valence.csv'
-trackerDat = pd.read_csv(track_path, header=0)
-
-#readAloudTiming_s1_r1_e1
-for i in range(len(trackerDat['id'])):
-  subid = trackerDat.iloc[i, 0]
-  rowno = int(np.where(trackerDat["id"] == subid)[0])
-  colno = trackerDat.columns.get_loc('readAloudTiming_s1_r1_e1')
-  if subid in np.unique(combodf['id']):
-    trackerDat.iloc[rowno, colno] = 1
-  else:
-    trackerDat.iloc[rowno, colno] = 0
-print("Updated readAloudTiming_s1_r1_e1!")
-
-#readAloudPitch_s1_r1_e1
-for i in range(len(trackerDat['id'])):
-  subid = trackerDat.iloc[i, 0]
-  rowno = int(np.where(trackerDat["id"] == subid)[0])
-  colno = trackerDat.columns.get_loc('readAloudPitch_s1_r1_e1')
-  if subid in np.unique(combodf['id']):
-    trackerDat.iloc[rowno, colno] = 1
-  else:
-    trackerDat.iloc[rowno, colno] = 0
-print("Updated readAloudPitch_s1_r1_e1!")
-
-#write back to central tracker
-trackerDat.to_csv(track_path, index=False)
+combodf.to_csv(outpath + "timingpitch_subject-by-passage_" + today_formatted + ".csv", index=False)
