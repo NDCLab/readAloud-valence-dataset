@@ -247,27 +247,33 @@ t.test(x=as.numeric(dfPosPost$flesch), y=as.numeric(dfNegPost$flesch), alternati
 
 #PLOTS
 #passage characteristics
-plot1 <- ggplot(data=readDat, aes(x=passage, y=length, fill=valCenter, group=position)) + geom_col() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold"),
-        panel.grid.major = element_blank(), legend.position="top",
-        panel.grid.minor = element_blank(), panel.background = element_blank()) +
-  scale_fill_gradient(low="#e76e5b", high="#fccd25", name="Valence", breaks=c(-0.5, 0, 0.5, 1.0), labels=c("4.7", "5.2", "5.7", "6.2")) +
-  ylab('Length in Words\nPreswitch <          > Postswitch') + xlab('Passage Name') +
-  coord_flip(ylim=c(-100,100)) +
-  scale_y_continuous(labels=c("100", "50", "0", "50", "100"))
+plot1 <- ggplot(data=readDat, aes(x=passage, y=length, fill=valCenter, group=position)) + geom_col(width=0.8) +
+          theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold", size=10, color="black"),
+                axis.text.y = element_text(size=10, color="black"),
+                axis.title.x = element_text(size=13, face="bold", color="black"),
+                axis.title.y = element_blank(),
+                panel.grid.major = element_blank(), legend.position="top",
+                panel.grid.minor = element_blank(), panel.background = element_blank(),
+                legend.text = element_text(color="black"), legend.title = element_text(color="black")) +
+          scale_fill_gradient(low="#e76e5b", high="#fccd25", name="Valence", breaks=c(-0.5, 0, 0.5, 1.0), labels=c("4.7", "5.2", "5.7", "6.2")) +
+          ylab('Length in Words') + 
+          coord_flip(ylim=c(-105,105)) +
+          scale_y_continuous(labels=c("100", "50", "0", "50", "100")) +
+          scale_x_discrete(position="top")
 
-plot2 <- ggplot(data=readDat, aes(x=passage, y=length, fill=avgFreq, group=position)) + geom_col() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold"),
-        axis.title.y = element_blank(),
-        panel.grid.major = element_blank(), legend.position="top",
-        panel.grid.minor = element_blank(), panel.background = element_blank()) +
-  scale_fill_gradient(low="#9511a1", high="#2c0594", name="Frequency") +
-  ylab('Length in Words\nPreswitch <          > Postswitch') +
-  coord_flip(ylim=c(-100,100)) +
-  scale_y_continuous(labels=c("100", "50", "0", "50", "100")) +
-  scale_x_discrete(position="top")
+plot2 <- ggplot(data=readDat, aes(x=passage, y=length, fill=avgFreq, group=position)) + geom_col(width=0.8) +
+          theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold", size=10, color="black"),
+                axis.text.y = element_text(size=10, color="black"),
+                axis.title.x = element_text(size=13, face="bold", color="black"), axis.title.y = element_text(size=13, face="bold", color="black"),
+                panel.grid.major = element_blank(), legend.position="top",
+                panel.grid.minor = element_blank(), panel.background = element_blank(),
+                legend.text = element_text(color="black"), legend.title = element_text(color="black")) +
+          scale_fill_gradient(low="#9511a1", high="#2c0594", name="Frequency") +
+          ylab('Length in Words') + xlab('Passage Name') +
+          coord_flip(ylim=c(-105,105)) +
+          scale_y_continuous(labels=c("100", "50", "0", "50", "100"))
 
-comboPlot <- grid.arrange(plot1, plot2, ncol=2, top=textGrob("Passage Characteristics", gp=gpar(fontsize=20,font=2)))
+comboPlot <- grid.arrange(plot2, plot1, ncol=2, top=textGrob("Passage Characteristics", gp=gpar(fontsize=20,font=2, color="black")))
 ggsave(paste(out_path, "plot_stim1", "_", today, ".png", sep="", collapse=NULL),
        arrangeGrob(comboPlot))
 
@@ -284,9 +290,11 @@ dolphinsDatPre$freq[31:77] <- 100
 dolphinsDatPost <- dolphinsDat[102:198, c("stimWord", "freq")]
 dolphinsDatPost <- subset(dolphinsDatPost, !duplicated(dolphinsDatPost$stimWord))
 dolphinsDatPost <- dolphinsDatPost[order(dolphinsDatPost$freq, decreasing=TRUE),]
-dolphinsDatPost$freq[1:3] <- 800
-dolphinsDatPost$freq[4:6] <- 600
+dolphinsDatPost$freq[1:3] <- 700
+dolphinsDatPost$freq[4:6] <- 500
 dolphinsDatPost$freq[26:70] <- 100
 
-wordcloud2(dolphinsDatPre, size=1, shape="pentagon", color=rep_len(c("#dd5e66","#f07f4f"), nrow(dolphinsDatPre)))
+wordcloud2(dolphinsDatPre, size=1, shape="pentagon", color=rep_len(c("#feb72d", "#f07f4f"), nrow(dolphinsDatPre)))
+wordcloud2(dolphinsDatPost, size=1, shape="pentagon", color=rep_len(c("#e76e5b", "#d14e72"), nrow(dolphinsDatPost)))
+
 wordcloud2(dolphinsDatPost, size=0.8, shape="pentagon", color=rep_len(c("#b6308b","#6e00a8"), nrow(dolphinsDatPost)))
