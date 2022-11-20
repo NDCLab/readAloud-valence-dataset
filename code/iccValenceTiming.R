@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Valence Timestamp Coder Correlation
 # Author: Jessica M. Alexander
-# Last Updated: 2022-11-05
+# Last Updated: 2022-11-20
 
 ### SECTION 1: SETTING UP
 library(readxl) #read_xlsx function
@@ -151,4 +151,4 @@ iccLG$stats
 
 iccMR <- psych::ICC(mr_for_icc)
 iccMR$results
-iccMR$states
+iccMR$stats
