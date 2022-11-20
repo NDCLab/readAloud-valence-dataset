@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Stimuli Frequency
 # Authors: Jessica M. Alexander
-# Last Updated: 2022-10-01
+# Last Updated: 2022-11-20
 
 
 ### SECTION 1: SETTING UP
@@ -10,6 +10,9 @@ library(devtools)
 library(wordcloud2)
 library(gridExtra)
 library(grid)
+library(cowplot)
+library(colorspace)
+library(colorblindr)
 
 #set up date for output file naming
 today <- Sys.Date()
@@ -17,15 +20,15 @@ today <- format(today, "%Y%m%d")
 
 #set up directories for input/output data
 main_dataset <- '/Users/jalexand/github/readAloud-valence-dataset/'
-out_path <- '/Users/jalexand/github/readAloud-valence-alpha/results/figures/'
+out_path <- '/Users/jalexand/github/readAloud-valence-alpha/'
 
 #set up directories for input/output data
 passage_list <- list.files(paste(main_dataset, 'materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input', sep="", collapse="NULL"))
 readAloudStimChar <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx', sep="", collapse=NULL)
 ldtWordList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/ldt/ldt_wordList.csv', sep="", collapse=NULL)
-warriner_path <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/BRM-emot-submit_downloaded_2021-08-08.csv', sep="", collapse=NULL)
-koustaCatList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/kousta-categories.csv', sep="", collapse=NULL)
-extendKoustaList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/valence_AnEW+_2796.xlsx', sep="", collapse=NULL)
+warriner_path <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/BRM-emot-submit_downloaded_2021-08-08.csv', sep="", collapse=NULL) #downloaded from https://link.springer.com/article/10.3758/s13428-012-0314-x on 08/08/2021
+koustaCatList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/kousta-categories.csv', sep="", collapse=NULL) #extracted from https://doi.org/10.1016/j.cognition.2009.06.007
+extendKoustaList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/valence_AnEW+_2796.xlsx', sep="", collapse=NULL) #kindly provided by the authors of https://doi.org/10.1016/j.cognition.2009.06.007 via personal correspondence
 SUBList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/SUBTLEXus74286wordstextversion.txt', sep="", collapse=NULL) #downloaded from https://www.ugent.be/pp/experimentele-psychologie/en/research/documents/subtlexus on 06/13/2022
 
 switchDat <- read_xlsx(readAloudStimChar, sheet="switches", skip=1, na="#")
@@ -154,7 +157,7 @@ readDat$avgMag <- as.numeric(readDat$avgMag)
 readDat$length <- as.numeric(readDat$length)
 
 #output readDat
-#write.csv(readDat, paste('/Users/jalexand/github/readAloud-valence-alpha/derivatives/analysisStimuli_readDat_', today, '.csv', sep="", collapse=NULL))
+#write.csv(readDat, paste('/Users/jalexand/github/readAloud-valence-dataset/derivatives/analysisStimuli_readDat_', today, '.csv', sep="", collapse=NULL))
 
 #calculate grand means
 avgTotals <- data.frame(matrix(ncol=5, nrow=3))
@@ -246,7 +249,7 @@ t.test(x=as.numeric(dfPosPost$flesch), y=as.numeric(dfNegPost$flesch), alternati
 
 
 #PLOTS
-#passage characteristics
+#passage characteristics (SNL poster)
 plot1 <- ggplot(data=readDat, aes(x=passage, y=length, fill=valCenter, group=position)) + geom_col(width=0.8) +
           theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold", size=10, color="black"),
                 axis.text.y = element_text(size=10, color="black"),
@@ -274,10 +277,10 @@ plot2 <- ggplot(data=readDat, aes(x=passage, y=length, fill=avgFreq, group=posit
           scale_y_continuous(labels=c("100", "50", "0", "50", "100"))
 
 comboPlot <- grid.arrange(plot2, plot1, ncol=2, top=textGrob("Passage Characteristics", gp=gpar(fontsize=20,font=2, color="black")))
-ggsave(paste(out_path, "plot_stim1", "_", today, ".png", sep="", collapse=NULL),
+ggsave(paste(out_path, "products/poster-neurolang2022/results/plot_stim1", "_", today, ".png", sep="", collapse=NULL),
        arrangeGrob(comboPlot))
 
-#dolphins word clouds
+#dolphins word clouds (SNL poster)
 dolphinsDat <- read_xlsx(readAloudStimChar, sheet="dolphins", skip=1, na="#") #read in dolphin data for wordcloud
 dolphinsDat$valenceStrengthWAR[is.na(dolphinsDat$valenceStrengthWAR)] <- 0
 dolphinsDat$freq <- (dolphinsDat$valenceStrengthWAR*10)^2
@@ -297,4 +300,64 @@ dolphinsDatPost$freq[26:70] <- 100
 wordcloud2(dolphinsDatPre, size=1, shape="pentagon", color=rep_len(c("#feb72d", "#f07f4f"), nrow(dolphinsDatPre)))
 wordcloud2(dolphinsDatPost, size=1, shape="pentagon", color=rep_len(c("#e76e5b", "#d14e72"), nrow(dolphinsDatPost)))
 
-wordcloud2(dolphinsDatPost, size=0.8, shape="pentagon", color=rep_len(c("#b6308b","#6e00a8"), nrow(dolphinsDatPost)))
+#passage characteristics (paper)
+#1: valence and length
+plot1 <- ggplot(data=readDat, aes(x=passage, y=length, fill=valCenter, group=position)) + geom_col(width=0.8) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold", size=10, color="black"),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size=13, face="bold", color="black"),
+        axis.title.y = element_blank(),
+        panel.grid.major = element_blank(), legend.position="right",
+        panel.grid.minor = element_blank(), panel.background = element_blank(),
+        legend.text = element_text(color="black"), legend.title = element_text(color="black")) +
+  scale_fill_gradient(low="#202A44", high="#E1AD01", name="Valence", breaks=c(-0.5, 0, 0.5, 1.0), labels=c("4.7", "5.2", "5.7", "6.2")) +
+  ylab('Length in Words') + 
+  coord_flip(ylim=c(-105,105)) +
+  scale_y_continuous(labels=c("100", "50", "0", "50", "100"))
+cvd_grid(plot1)
+
+#2: frequency
+readDat$avgFreqPlot <- readDat$avgFreq
+vec <- rep(c(-1,1), nrow(readDat)/2)
+readDat$avgFreqPlot <- readDat$avgFreqPlot * vec
+
+plot2 <- ggplot(data=readDat, aes(x=passage, y=avgFreqPlot, fill=position, group=position)) + geom_col(width=0.8) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold", size=11, color="black"),
+        axis.text.y = element_blank(),
+        axis.title.x = element_text(size=13, face="bold", color="black"),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major = element_blank(), legend.position="left",
+        panel.grid.minor = element_blank(), panel.background = element_blank(),
+        legend.text = element_text(color="black"), legend.title = element_text(color="black")) +
+  scale_fill_manual(values = c(alpha("#999933", 0.7), "#882255", 0.7), name="Position",
+                    labels=c("Postswitch", "Preswitch"), guide = guide_legend(reverse = TRUE)) +
+  ylab('Average Log Frequency') + xlab('Passage Name') +
+  coord_flip(ylim=c(-4,4)) +
+  scale_y_continuous(labels=c("4.0", "2.0", "0", "2.0", "4.0"))
+cvd_grid(plot2)
+
+#3: name
+readDat$placeholder <- rep(1, nrow(readDat))
+readDat_trim <- readDat
+toDelete <- seq(1, nrow(readDat), 2)
+readDat_trim <- readDat_trim[toDelete,]
+
+plot3 <- ggplot(data=readDat_trim, aes(x=passage, y=placeholder)) + geom_col(fill="white") + coord_flip() +
+  geom_text(aes(y=0.5, label=passage)) +
+  ylab("Name") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, face="bold", size=10, color="white"),
+        axis.text.y = element_blank(),
+        axis.title.x = element_text(size=13, face="bold", color="black"),
+        axis.title.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), panel.background = element_blank()) +
+  scale_y_continuous(labels=c("5.0", "2.5", "0", "2.5", "5.0"))
+
+#combo:
+comboPlot <- grid.arrange(plot2, plot3, plot1, ncol=3, widths=unit(c(4,2,4), c("in", "in", "in")), top=textGrob("Passage Characteristics", gp=gpar(fontsize=20,font=2, color="black")))
+#cvd_grid(comboPlot)
+ggsave(paste(out_path, "products/paper-readAloud/results/figure1_", today, ".png", sep="", collapse=NULL),
+       arrangeGrob(comboPlot))
