@@ -25,9 +25,7 @@ In addition, participants answered questions on:
 ## Roadmap
 **Release 1:** anticipated Q4 2022
 
-
-## Work in Development
-This `main` branch contains completed releases for this project. For all work-in-progress, please switch over to the `dev` branches.
+See the associated [analysis repo](https://github.com/NDCLab/readAloud-valence-alpha) for the initial poster and preprint from this dataset.
 
 
 ## Contributors
@@ -35,7 +33,7 @@ This `main` branch contains completed releases for this project. For all work-in
 | ---  | ---  |
 | Jessica M. Alexander | conceptualization, resources, project administration, data curation |
 | Dr. George A. Buzzell | supervision |
-| Ana Lopez-Nuñez, Anfernee Duncombe, Brittney Rodriguez, Ana García Morazzani, Laura Gallardo, Maria Rodriguez | data coding |
+| Ana García Morazzani, Ana Lopez-Nuñez, Anfernee Duncombe, Brittney Rodriguez, Laura Gallardo, Lucas Sahar, Maria Rodriguez, Sarah Malykke | data coding |
 
 Learn more about us [here](https://www.ndclab.com/people).
 
