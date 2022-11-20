@@ -19,29 +19,26 @@ Please see the roadmap available on the [README.md](README.md) file of this repo
 ```yml
 readAloud-valence-dataset
 ├── code
-├── containers
 ├── CONTRIBUTING.md
 ├── data-monitoring
     ├──data-monitoring-log.md
-    ├──postprocessing-check
-    ├──results-check
+    ├──central-tracker
+    ├──data-dictionary
 ├── derivatives
     ├──preprocessed
 ├── literature
 ├── materials
+    ├──eeg-pilot
     ├──questionnaires
     ├──readAloud-ldt
           ├──scripts
           ├──stimuli
-               ├──eeg-pilot
                ├──ldt
                ├──readAloud
+               ├──resources
 ├── README.md
 ├── sourcedata
 ```
-
-### Container
-To ensure reproducibility of results and software, a default docker file and singularity container are included with this template repository. The respective [README.md](README.md) contains a comprehensive guide on how to get started with the dockerfile. A step-by-step guide to getting started also included in the following [video](https://www.youtube.com/watch?v=oO8n3y23b6M). 
 
 
 ## Workflow
