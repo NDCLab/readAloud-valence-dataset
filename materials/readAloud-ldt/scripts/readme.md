@@ -1,3 +1,3 @@
 # Experimental Script
 
-The PsychoPy script is currently running on Pavlovia.  If you would like to see or fork it, please contact us.  Once data collection has ended, this page will include an open access link to the GitLab repository for the .psyexp experiment and its resources.
+The PsychoPy script was run on Pavlovia, which uses GitLab.  If you would like to see or fork it, please follow [this link](https://gitlab.pavlovia.org/NdcLabB/read-aloud-val-o_s1_r1_e1).
