@@ -7,5 +7,6 @@
 # data specific files
 derivatives/*
 sourcedata/
-central-tracker_readAloud-valence.csv
-data-monitoring-log.md
+
+# extended ANEW from personal correspondence
+materials/readAloud-ldt/stimuli/resources/valence_AnEW+_2796.xlsx
