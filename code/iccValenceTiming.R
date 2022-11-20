@@ -1,10 +1,10 @@
 # readAloud-valence-dataset Valence Timestamp Coder Correlation
 # Author: Jessica M. Alexander
-# Last Updated: 2022-09-09
+# Last Updated: 2022-11-20
 
 ### SECTION 1: SETTING UP
 library(readxl) #read_xlsx function
-library(irr) # icc function
+library(psych) # icc function
 library(ggplot2) #plotting
 
 #set up directories for data
@@ -143,5 +143,12 @@ ggplot(mr_for_bland_altman, aes(x=avg, y=delta)) +
 
 
 ### SECTION 6: RUN CORRELATIONS
-icc(lg_for_icc, 'twoway', 'agreement', 'single')
-icc(mr_for_icc, 'twoway', 'agreement', 'single')
+#icc(lg_for_icc, 'twoway', 'agreement', 'single') #alternate calculation (same results) using irr package
+#icc(mr_for_icc, 'twoway', 'agreement', 'single') #alternate calculation (same results) using irr package
+iccLG <- psych::ICC(lg_for_icc)
+iccLG$results
+iccLG$stats
+
+iccMR <- psych::ICC(mr_for_icc)
+iccMR$results
+iccMR$stats
