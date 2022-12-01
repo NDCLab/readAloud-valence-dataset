@@ -21,6 +21,8 @@ In addition, participants answered questions on:
 * anxiety
 * depression
 
+Data was collected at Florida International University from January-June 2022.  Participants received course credit via the SONA system.
+
 
 ## Data Releases
 **2022-11-22:** [osf.io/pn2hu](https://osf.io/pn2hu/)
