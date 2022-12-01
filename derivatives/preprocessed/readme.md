@@ -8,4 +8,4 @@ This folder contains manually-coded derivatives for timing, pitch, and disfluenc
 
 In addition, this folder contains automated outputs from the various preprocessing scripts in the "code" folder, and the scored version of questionnaire data from the "instruments" script.
 
-**Note:** This folder is explicitly untracked in this repo's .gitignore file.
+**Note:** This folder is explicitly untracked in this repo's .gitignore file. For publicly available data, please see the main repository readme.

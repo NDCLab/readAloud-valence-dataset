@@ -5,7 +5,7 @@ This folder contains three scripts used to create preprocessed derivatives:
 | script | input | output |
 |:-- | :-- | :-- |
 | preprocPavlovia.R | participant-specific records directly from PsychoPy/Pavlovia | six files, two per each of the three tasks within the PsychoPy experiment, one of which is subject-level results and one of which is trial-level results for all subjects |
-| preprocTimingAndPitch.py | participant-specific records coded from the task audio recording, based upon the syllable-timestamps-valence protocol | one file with for timing and pitch values for each passage for each subject |
+| preprocTimingAndPitch.py | participant-specific records coded from the task audio recording, based upon the syllable-timestamps-valence protocol | one file with timing and pitch values for each passage for each subject |
 | preprocDisfluencies.R | participant-specific records coded from the task audio recording, based upon the error-coding protocols (_in-progress_) | one file with disfluency values for all participants across each passage |
 
 This folder also contains the following three scripts:

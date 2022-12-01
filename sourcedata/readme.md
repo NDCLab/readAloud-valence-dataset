@@ -1,3 +1,3 @@
 # Source Data
 
-This project is currently in data collection and data are not yet publicly available.
+This folder is explicitly untracked in this repo's .gitignore file. For publicly available data, please see the main repository readme.
