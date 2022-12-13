@@ -1,6 +1,6 @@
 # readAloud-valence-dataset Stimuli Frequency
 # Authors: Jessica M. Alexander
-# Last Updated: 2022-11-20
+# Last Updated: 2022-12-13
 
 
 ### SECTION 1: SETTING UP
@@ -202,6 +202,8 @@ avgTotals$prePos <- as.numeric(avgTotals$prePos)
 avgTotals$postPos <- as.numeric(avgTotals$postPos)
 avgTotals$preNeg <- as.numeric(avgTotals$preNeg)
 avgTotals$postNeg <- as.numeric(avgTotals$postNeg)
+readDat$position <- as.factor(readDat$position)
+readDat$valence <- as.factor(readDat$valence)
 
 
 #FREQUENCY: not fully matched
@@ -224,10 +226,12 @@ postPosvNegSd <- t.test(x=as.numeric(dfPosPost$sdFreq), y=as.numeric(dfNegPost$s
 #VALENCE: manipulated
 ggplot(data=readDat, aes(x=position, y=valenceWARAvg, fill=valence)) + geom_boxplot()
 
-t.test(x=as.numeric(dfPosPre$valenceWARAvg), y=as.numeric(dfPosPost$valenceWARAvg), alternative="two.sided")
-t.test(x=as.numeric(dfNegPre$valenceWARAvg), y=as.numeric(dfNegPost$valenceWARAvg), alternative="two.sided")
-t.test(x=as.numeric(dfPosPre$valenceWARAvg), y=as.numeric(dfNegPre$valenceWARAvg), alternative="two.sided")
-t.test(x=as.numeric(dfPosPost$valenceWARAvg), y=as.numeric(dfNegPost$valenceWARAvg), alternative="two.sided")
+summary(aov(valenceWARAvg ~ position * valence, data=readDat))
+
+#t.test(x=as.numeric(dfPosPre$valenceWARAvg), y=as.numeric(dfPosPost$valenceWARAvg), alternative="two.sided")
+#t.test(x=as.numeric(dfNegPre$valenceWARAvg), y=as.numeric(dfNegPost$valenceWARAvg), alternative="two.sided")
+#t.test(x=as.numeric(dfPosPre$valenceWARAvg), y=as.numeric(dfNegPre$valenceWARAvg), alternative="two.sided")
+#t.test(x=as.numeric(dfPosPost$valenceWARAvg), y=as.numeric(dfNegPost$valenceWARAvg), alternative="two.sided")
 
 
 #VALENCE MAGNITUDE: matched
@@ -242,10 +246,7 @@ t.test(x=as.numeric(dfPosPost$avgMag), y=as.numeric(dfNegPost$avgMag), alternati
 #FLESCH: matched
 ggplot(data=readDat, aes(x=position, y=flesch, fill=valence)) + geom_boxplot()
 
-t.test(x=as.numeric(dfPosPre$flesch), y=as.numeric(dfPosPost$flesch), alternative="two.sided")
-t.test(x=as.numeric(dfNegPre$flesch), y=as.numeric(dfNegPost$flesch), alternative="two.sided")
-t.test(x=as.numeric(dfPosPre$flesch), y=as.numeric(dfNegPre$flesch), alternative="two.sided")
-t.test(x=as.numeric(dfPosPost$flesch), y=as.numeric(dfNegPost$flesch), alternative="two.sided")
+summary(aov(flesch ~ position * valence, data=readDat))
 
 
 #PLOTS
