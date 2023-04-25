@@ -1,10 +1,13 @@
 # readAloud-valence-dataset Stimuli Frequency
 # Authors: Jessica M. Alexander
-# Last Updated: 2022-12-13
+# Last Updated: 2023-04-25
 
 
 ### SECTION 1: SETTING UP
-library(readxl)
+library(readxl) #load excel files
+library(textstem) #lemmatize_words function
+
+#visualization tools
 library(ggplot2)
 library(devtools)
 library(wordcloud2)
@@ -24,6 +27,7 @@ out_path <- '/Users/jalexand/github/readAloud-valence-alpha/'
 
 #set up directories for input/output data
 passage_list <- list.files(paste(main_dataset, 'materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input', sep="", collapse="NULL"))
+scaffolds <- paste(main_dataset, 'code/scaffolds.xlsx', sep="", collapse=NULL)
 readAloudStimChar <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/readAloud/readAloud-stimuli_characteristics.xlsx', sep="", collapse=NULL)
 ldtWordList <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/ldt/ldt_wordList.csv', sep="", collapse=NULL)
 warriner_path <- paste(main_dataset, 'materials/readAloud-ldt/stimuli/resources/BRM-emot-submit_downloaded_2021-08-08.csv', sep="", collapse=NULL) #downloaded from https://link.springer.com/article/10.3758/s13428-012-0314-x on 08/08/2021
@@ -38,7 +42,7 @@ warriner <- read.csv(warriner_path)
 koustaCatDat <- read.csv(koustaCatList)
 extKoustaDat <- read_xlsx(extendKoustaList, sheet="Sheet1")
 subtlexus <- read.table(SUBList, header=TRUE)
-subtlexus$Word <- tolower(subtlexus$Word)
+subtlexus$Word <- tolower(subtlexus$Word) #make all entries in SUBTLEXUS lower-case
 
 
 ### SECTION 2: LEXICAL DECISION TASK
@@ -82,58 +86,133 @@ for(i in 1:length(passage_list)){
 }
 passages <- unique(passages)
 
-readDat <- data.frame(matrix(ncol=7, nrow=0))
+#create manual mapping of words to SUBTLEXUS corpus when lemma doesn't automatically match
+noFreq <- data.frame(matrix(ncol=2, nrow=0)) #initialize a table to hold words without a frequency match
+colnames(noFreq) <- c("stimWord",
+                       "lemma")
+for(i in 1:length(passages)){
+  passage <- passages[i]
+  passageDat <- read_xlsx(readAloudStimChar, sheet=passage, skip=1, na="#") #read in passage data
+  passWords <- passageDat[,1:2] #pull word list
+  for(a in 1:length(passWords$stimWord)){ #correct apostrophes (curly to straight)
+    string <- passWords$stimWord[a]
+    passWords$stimWord[a] <- gsub("’", "'",string)
+  } 
+  passWords$stimWord <- tolower(passWords$stimWord) #shift word list to lowercase to match SUBTLEXUS
+  passWords$lemma <- lemmatize_words(passWords$stimWord) #lemmatize word list
+  passWords$freq <- rep(0, nrow(passWords)) #add log word frequency from SUBTLEXUS corpus for each word lemma in the passage
+  for(f in 1:nrow(passWords)){
+    passWords$freq[f] <- subtlexus$Lg10WF[match(passWords$lemma[f], subtlexus$Word)]
+  }
+  noFreqTable <- subset(passWords, is.na(passWords$freq))[,2:3] #extract words that did not get a frequency match
+  noFreq <- rbind(noFreq, noFreqTable) #bind to running table of words without a frequency match
+}
+noFreq <- noFreq[!duplicated(noFreq$stimWord),] #remove duplicate rows
+noFreq <- noFreq[order(noFreq$stimWord),] #alphabetize df
+noFreq$manualLemma <- c(rep(0,nrow(noFreq))) #initialize column to hold manual lemmas extracted by researcher
+for(lemma in 1:nrow(noFreq)){ #manually adjust possessives
+  string <- noFreq$lemma[lemma]
+  if(substr(string, nchar(string)-1, nchar(string))=="'s" & string!="it's"){
+    noFreq$manualLemma[lemma] <- substr(string, 0, nchar(string)-2)
+    }
+}
+#manually adjust plurals
+noFreq[match("brittles", noFreq$stimWord),3] <- "brittle"
+#manually adjust adjectives
+noFreq[match("club-like", noFreq$stimWord),3] <- "club"
+noFreq[match("in-flight", noFreq$stimWord),3] <- "flight"
+noFreq[match("mid-", noFreq$stimWord),3] <- "middle"
+#ccc, don't, it's, long-term: compound words with no obvious "primary" lemma
+#delano, nissan: proper nouns
+#ecotourism, hydropower, jetsetter, megabat, microbats, photoreceptor, plumicorn, powertrain, spearer, trinocular: words not in database
+#nineteeth, second, twentieth: ordinal numbers ("second" may have different connotations than "two")
+noFreq <- subset(noFreq, noFreq$manualLemma!=0) #drop words without a manual mapping
+noFreq$freq <- rep(0, nrow(noFreq)) #add log word frequency from SUBTLEXUS corpus
+for(f in 1:nrow(noFreq)){
+  noFreq$freq[f] <- subtlexus$Lg10WF[match(noFreq$manualLemma[f], subtlexus$Word)]
+}
+
+
+readDat <- data.frame(matrix(ncol=9, nrow=0))
 colnames(readDat) <- c("passage",
                      "position",
                      "valence",
-                     "length",
+                     "lengthSyll",
+                     "lengthWord",
+                     "avgSyllPerWord",
                      "avgFreq",
-                     "sdFreq",
-                     "avgMag")
+                     "avgVal",
+                     "avgValTest")
 
-#calculate per passage frequencies
+#calculate characteristics per passage half
 for(j in 1:length(passages)){
   passage <- passages[j]
   passageDat <- read_xlsx(readAloudStimChar, sheet=passage, skip=1, na="#") #read in passage data
+  scaffDat <- read_xlsx(scaffolds, sheet=passage) #read in passage scaffold
+  
+  #extract data from switchDat
   switchType <- switchDat$switchType[match(passage, switchDat$passage)] #identify passage switch type (neg2pos or pos2neg)
-  preSwitchVal <- substr(switchType, 1, 3) #identify valence of preswitch passage half
-  postSwitchVal <-substr(switchType, 5, 7) #identify valence of postswitch passage half
+  preSwitchVal <- substr(switchType, 1, 3) #identify valence of preswitch passage half (pos or neg)
+  postSwitchVal <-substr(switchType, 5, 7) #identify valence of postswitch passage half (pos or neg)
   switchWord <- switchDat$switchWord[match(passage, switchDat$passage)] #identify passage switch word
-  switchWordIdx <- match(switchWord, passageDat$stimRoot) #identify index of passage switch word
   
-  lenWordPos <- passDat$lenWORDpos[match(passage, passDat$passage)] #identify number of syllables in positive passage half
-  lenWordNeg <- passDat$lenWORDneg[match(passage, passDat$passage)] #identify number of syllables in negative passage half
-  if(switchType=="pos2neg"){
-    preLenWord <- lenWordPos
-    postLenWord <- lenWordNeg
+  #extract data from scaffDat
+  scaffSwitch <- match("switch", scaffDat$wordGroup) #identify index of passage switch word in scaffDat
+  preLenSyll <- scaffSwitch - 1 #identify number of syllables in first passage half
+  postLenSyll <- length(scaffDat$wordGroup) - preLenSyll #identify number of syllables in second passage half
+  preLenWord <- sum(scaffDat$wordOnset[1:(scaffSwitch - 1)]) #identify number of syllables in first passage half
+  postLenWord <- sum(scaffDat$wordOnset) - preLenWord #identify number of syllables in second passage half
+  preSyllPerWord <- preLenSyll/preLenWord
+  postSyllPerWord <- postLenSyll/postLenWord
+  
+  #extract passage word list
+  passWords <- passageDat[,1:2] #pull word list
+  for(a in 1:length(passWords$stimWord)){ #correct apostrophes (curly to straight)
+    string <- passWords$stimWord[a]
+    passWords$stimWord[a] <- gsub("’", "'",string)
   }
-  if(switchType=="neg2pos"){
-    preLenWord <- lenWordNeg
-    postLenWord <- lenWordPos
+  passWords$stimWord <- tolower(passWords$stimWord) #shift word list to lowercase to match SUBTLEXUS
+  passWords$lemma <- lemmatize_words(passWords$stimWord) #lemmatize word list
+  
+  #add frequency data
+  passWords$freq <- rep(0, nrow(passWords)) #add log word frequency from SUBTLEXUS corpus for each word lemma in the passage
+  for(f in 1:nrow(passWords)){
+    if(!is.na(subtlexus$Lg10WF[match(passWords$lemma[f], subtlexus$Word)])){
+      passWords$freq[f] <- subtlexus$Lg10WF[match(passWords$lemma[f], subtlexus$Word)]
+    } else if (passWords$lemma[f] %in% noFreq$lemma){
+      passWords$freq[f] <- noFreq$freq[match(passWords$lemma[f], noFreq$lemma)]
+    }
   }
   
-  preSwitchFreq <- passageDat$logFreqSUB[1:(switchWordIdx-1)] #slice frequency into pre-...
-  postSwitchFreq <- passageDat$logFreqSUB[switchWordIdx:nrow(passageDat)] #...and post-switch halves
+  #add valence data
+  passWords$val <- rep(0, nrow(passWords)) #add word valence from Warriner corpus for each word lemma in the passage
+  for(v in 1:nrow(passWords)){
+    passWords$val[v] <- warriner$V.Mean.Sum[match(passWords$lemma[v], warriner$Word)]
+  }
+  passWords$test <- passWords$val #make test copy of val column CHECKME
+  for(x in 1:nrow(passWords)){if(is.na(passWords$test[x])){passWords$test[x] <- 5.2}} #impute median value CHECKME
+  passSwitch <- match(switchWord, passWords$stimWord) #identify index of passage switch word in passWords matrix
   
-  preSwitchFreqAvg <- mean(preSwitchFreq, na.rm=TRUE) #calculate mean frequency for preswitch half
-  preSwitchFreqSd <- sd(preSwitchFreq, na.rm=TRUE) #calculate standard deviation for preswitch half
-  postSwitchFreqAvg <- mean(postSwitchFreq, na.rm=TRUE) #calculate mean frequency for postswitch half
-  postSwitchFreqSd <- sd(postSwitchFreq, na.rm=TRUE) #calculate standard deviation for postswitch half
+  #calculate average frequency
+  preFreqAvg <- mean(passWords$freq[1:(passSwitch-1)], na.rm=TRUE) #calculate mean frequency for preswitch half
+  postFreqAvg <- mean(passWords$freq[passSwitch:length(passWords$freq)], na.rm=TRUE) #calculate mean frequency for postswitch half
   
-  preSwitchMag <- passageDat$valenceStrengthWAR[1:(switchWordIdx-1)] #slice magnitude into pre-...
-  postSwitchMag <- passageDat$valenceStrengthWAR[switchWordIdx:nrow(passageDat)] #...and post-switch halves
+  #calculate average valence
+  preValAvg <- mean(passWords$val[1:(passSwitch-1)], na.rm=TRUE) #calculate mean valence for preswitch half
+  postValAvg <- mean(passWords$val[passSwitch:length(passWords$val)], na.rm=TRUE) #calculate mean valence for postswitch half
   
-  preSwitchMagAvg <- mean(preSwitchMag, na.rm=TRUE) #calculate mean valence magnitude for preswitch half
-  postSwitchMagAvg <- mean(postSwitchMag, na.rm=TRUE) #calculate mean valence magnitude for postswitch half
+  #calculate average valence w/imputed values CHECKME
+  preValTestAvg <- mean(passWords$test[1:(passSwitch-1)], na.rm=TRUE) #calculate mean valence for preswitch half
+  postValTestAvg <- mean(passWords$test[passSwitch:length(passWords$test)], na.rm=TRUE) #calculate mean valence for postswitch half
   
-  vectorPre <- c(passage, "pre", preSwitchVal, (-1*preLenWord), preSwitchFreqAvg, preSwitchFreqSd, preSwitchMagAvg)
+  vectorPre <- c(passage, "pre", preSwitchVal, preLenSyll, preLenWord, preSyllPerWord, preFreqAvg, preValAvg, preValTestAvg)
   readDat[nrow(readDat) + 1,] <- c(vectorPre)
   
-  vectorPost <- c(passage, "post", postSwitchVal, postLenWord, postSwitchFreqAvg, postSwitchFreqSd, postSwitchMagAvg)
+  vectorPost <- c(passage, "post", postSwitchVal, postLenSyll, postLenWord, postSyllPerWord, postFreqAvg, postValAvg, postValTestAvg)
   readDat[nrow(readDat) + 1,] <- c(vectorPost)
 }
 
-#add flesch reading score
+#add flesch reading score to readDat
 for(k in 1:nrow(readDat)){
   passage <- readDat$passage[k]
   valence <- readDat$valence[k]
@@ -141,20 +220,13 @@ for(k in 1:nrow(readDat)){
   else{readDat$flesch[k] <- passDat$fleschNEG[which(passDat$passage==passage)]}
 }
 
-#add warriner valence averages
-for(m in 1:nrow(readDat)){
-  passage <- readDat$passage[m]
-  valence <- readDat$valence[m]
-  if(valence=='pos'){readDat$valenceWARAvg[m] <- passDat$posAvgWAR[which(passDat$passage==passage)]}
-  else{readDat$valenceWARAvg[m] <- passDat$negAvgWAR[which(passDat$passage==passage)]}
-}
-readDat$valCenter <- readDat$valenceWARAvg - 5.2
-
 #organize data types
 readDat$avgFreq <- as.numeric(readDat$avgFreq)
-readDat$sdFreq <- as.numeric(readDat$sdFreq)
-readDat$avgMag <- as.numeric(readDat$avgMag)
-readDat$length <- as.numeric(readDat$length)
+readDat$avgVal <- as.numeric(readDat$avgVal)
+readDat$avgValTest <- as.numeric(readDat$avgValTest)
+readDat$lengthSyll <- as.numeric(readDat$lengthSyll)
+readDat$lengthWord <- as.numeric(readDat$lengthWord)
+readDat$avgSyllPerWord <- as.numeric(readDat$avgSyllPerWord)
 
 #output readDat
 #write.csv(readDat, paste('/Users/jalexand/github/readAloud-valence-dataset/derivatives/analysisStimuli_readDat_', today, '.csv', sep="", collapse=NULL))
@@ -165,37 +237,32 @@ colnames(avgTotals) <- c("variable", "prePos", "postPos", "preNeg", "postNeg")
 
 dfPosPre <- readDat[readDat$position=="pre" & readDat$valence=="pos",] #subset into positive, preswitch data
 posPreFreqAvg <- mean(as.numeric(dfPosPre$avgFreq))
-posPreFreqSd <- mean(as.numeric(dfPosPre$sdFreq))
-posPreValAvg <- mean(as.numeric(dfPosPre$valenceWARAvg))
-posPreMagAvg <- mean(as.numeric(dfPosPre$avgMag))
+posPreValAvg <- mean(as.numeric(dfPosPre$avgVal))
+posPreValTestAvg <- mean(as.numeric(dfPosPre$avgValTest))
 posPreFleschAvg <- mean(as.numeric(dfPosPre$flesch))
 
 dfPosPost <- readDat[readDat$position=="post" & readDat$valence=="pos",] #subset into positive, postswitch data
 posPostFreqAvg <- mean(as.numeric(dfPosPost$avgFreq))
-posPostFreqSd <- mean(as.numeric(dfPosPost$sdFreq))
-posPostValAvg <- mean(as.numeric(dfPosPost$valenceWARAvg))
-posPostMagAvg <- mean(as.numeric(dfPosPost$avgMag))
+posPostValAvg <- mean(as.numeric(dfPosPost$avgVal))
+posPostValTestAvg <- mean(as.numeric(dfPosPost$avgValTest))
 posPostFleschAvg <- mean(as.numeric(dfPosPost$flesch))
 
 dfNegPre <- readDat[readDat$position=="pre" & readDat$valence=="neg",] #subset into negative, preswitch data
 negPreFreqAvg <- mean(as.numeric(dfNegPre$avgFreq))
-negPreFreqSd <- mean(as.numeric(dfNegPre$sdFreq))
-negPreValAvg <- mean(as.numeric(dfNegPre$valenceWARAvg))
-negPreMagAvg <- mean(as.numeric(dfNegPre$avgMag))
+negPreValAvg <- mean(as.numeric(dfNegPre$avgVal))
+negPreValTestAvg <- mean(as.numeric(dfNegPre$avgValTest))
 negPreFleschAvg <- mean(as.numeric(dfNegPre$flesch))
 
 dfNegPost <- readDat[readDat$position=="post" & readDat$valence=="neg",] #subset into negative, postswitch data
 negPostFreqAvg <- mean(as.numeric(dfNegPost$avgFreq))
-negPostFreqSd <- mean(as.numeric(dfNegPost$sdFreq))
-negPostValAvg <- mean(as.numeric(dfNegPost$valenceWARAvg))
-negPostMagAvg <- mean(as.numeric(dfNegPost$avgMag))
+negPostValAvg <- mean(as.numeric(dfNegPost$avgVal))
+negPostValTestAvg <- mean(as.numeric(dfNegPost$avgValTest))
 negPostFleschAvg <- mean(as.numeric(dfNegPost$flesch))
 
 avgTotals[1,] <- c("AvgFreq", posPreFreqAvg, posPostFreqAvg, negPreFreqAvg, negPostFreqAvg)
-avgTotals[2,] <- c("SdFreq", posPreFreqSd, posPostFreqSd, negPreFreqSd, negPostFreqSd)
-avgTotals[3,] <- c("AvgVal", posPreValAvg, posPostValAvg, negPreValAvg, negPostValAvg)
-avgTotals[4,] <- c("AvgMag", posPreMagAvg, posPostMagAvg, negPreMagAvg, negPostMagAvg)
-avgTotals[5,] <- c("AvgFlesch", posPreFleschAvg, posPostFleschAvg, negPreFleschAvg, negPostFleschAvg)
+avgTotals[2,] <- c("AvgVal", posPreValAvg, posPostValAvg, negPreValAvg, negPostValAvg)
+avgTotals[3,] <- c("AvgValTest", posPreValTestAvg, posPostValTestAvg, negPreValTestAvg, negPostValTestAvg)
+avgTotals[4,] <- c("AvgFlesch", posPreFleschAvg, posPostFleschAvg, negPreFleschAvg, negPostFleschAvg)
 
 #organize data types
 avgTotals$prePos <- as.numeric(avgTotals$prePos)
@@ -209,43 +276,21 @@ readDat$valence <- as.factor(readDat$valence)
 #FREQUENCY: not fully matched
 #plot
 ggplot(data=readDat, aes(x=position, y=avgFreq, fill=valence)) + geom_boxplot()
-
-#compare averages
-posPrevPostAvg <- t.test(x=as.numeric(dfPosPre$avgFreq), y=as.numeric(dfPosPost$avgFreq), alternative="two.sided")
-negPrevPostAvg <- t.test(x=as.numeric(dfNegPre$avgFreq), y=as.numeric(dfNegPost$avgFreq), alternative="two.sided")
-prePosvNegAvg <- t.test(x=as.numeric(dfPosPre$avgFreq), y=as.numeric(dfNegPre$avgFreq), alternative="two.sided") #significant
-postPosvNegAvg <- t.test(x=as.numeric(dfPosPost$avgFreq), y=as.numeric(dfNegPost$avgFreq), alternative="two.sided")
-
-#compare standard deviations
-posPrevPostSd <- t.test(x=as.numeric(dfPosPre$sdFreq), y=as.numeric(dfPosPost$sdFreq), alternative="two.sided")
-negPrevPostSd <- t.test(x=as.numeric(dfNegPre$sdFreq), y=as.numeric(dfNegPost$sdFreq), alternative="two.sided")
-prePosvNegSd <- t.test(x=as.numeric(dfPosPre$sdFreq), y=as.numeric(dfNegPre$sdFreq), alternative="two.sided") #borderline significant
-postPosvNegSd <- t.test(x=as.numeric(dfPosPost$sdFreq), y=as.numeric(dfNegPost$sdFreq), alternative="two.sided")
+summary(aov(avgFreq ~ position * valence, data=readDat))
 
 
 #VALENCE: manipulated
-ggplot(data=readDat, aes(x=position, y=valenceWARAvg, fill=valence)) + geom_boxplot()
-
-summary(aov(valenceWARAvg ~ position * valence, data=readDat))
-
-#t.test(x=as.numeric(dfPosPre$valenceWARAvg), y=as.numeric(dfPosPost$valenceWARAvg), alternative="two.sided")
-#t.test(x=as.numeric(dfNegPre$valenceWARAvg), y=as.numeric(dfNegPost$valenceWARAvg), alternative="two.sided")
-#t.test(x=as.numeric(dfPosPre$valenceWARAvg), y=as.numeric(dfNegPre$valenceWARAvg), alternative="two.sided")
-#t.test(x=as.numeric(dfPosPost$valenceWARAvg), y=as.numeric(dfNegPost$valenceWARAvg), alternative="two.sided")
+ggplot(data=readDat, aes(x=position, y=avgVal, fill=valence)) + geom_boxplot()
+summary(aov(avgVal ~ position * valence, data=readDat))
 
 
-#VALENCE MAGNITUDE: matched
-ggplot(data=readDat, aes(x=position, y=avgMag, fill=valence)) + geom_boxplot()
-
-t.test(x=as.numeric(dfPosPre$avgMag), y=as.numeric(dfPosPost$avgMag), alternative="two.sided")
-t.test(x=as.numeric(dfNegPre$avgMag), y=as.numeric(dfNegPost$avgMag), alternative="two.sided")
-t.test(x=as.numeric(dfPosPre$avgMag), y=as.numeric(dfNegPre$avgMag), alternative="two.sided")
-t.test(x=as.numeric(dfPosPost$avgMag), y=as.numeric(dfNegPost$avgMag), alternative="two.sided")
+#VALENCE TEST: manipulated
+ggplot(data=readDat, aes(x=position, y=avgValTest, fill=valence)) + geom_boxplot()
+summary(aov(avgValTest ~ position * valence, data=readDat))
 
 
 #FLESCH: matched
 ggplot(data=readDat, aes(x=position, y=flesch, fill=valence)) + geom_boxplot()
-
 summary(aov(flesch ~ position * valence, data=readDat))
 
 
