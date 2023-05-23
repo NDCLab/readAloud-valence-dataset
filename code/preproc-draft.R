@@ -10,11 +10,14 @@
 # 150079
 # 150086
 
-# prelims:
-# install.packages("tidyverse"); install.packages("readxl")
-library(readxl)
-library(tidyverse)
-library(stringr)
+# library(tidyverse)
+library(readxl) # read_xlsx
+library(stringr) # str_extract
+library(dplyr) # most things
+library(purrr) # map, map_df; generally good to have
+library(lubridate) # now
+library(readr) # write_csv
+
 
 error_types_idiomatic = c(
   "misprod", 
@@ -100,7 +103,7 @@ count_errors <- function(row){ length(ones(row)) } # for a given error type, how
 count_errors_by_type <- function(passage_df) {
   error_counts <- passage_df %>%
     select(misprod:elongation) %>%
-    map_df(count_errors) # %>%
+    map_df(count_errors)
 }
 
 ## For all error types for a given passage
@@ -108,7 +111,7 @@ count_error_syllables_any_type <- function(passage_df) {
   passage_df %>%
     select(misprod:elongation) %>% # only the error columns
     filter_all(any_vars(. == 1)) %>% # get only the rows that have a 1 somewhere
-    nrow
+    nrow # count them
 }
 
 count_corrected_error_syllables <- function(passage_df) {
@@ -171,8 +174,8 @@ generate_summary_for_each_passage_with_metadata <- function(dir_root, participan
 # for every participant in the directory, identified by the form sub_XXXXXX_reconciled,
 # call generate_summary_for_each_passage_with_metadata(the_parentdir_of_all_those, that_id)
 
-find_participant_id_from_dirname <- function(str) {
-  str_extract(str, "\\d+")
+find_participant_id_from_dirname <- function(dirname) {
+  str_extract(dirname, "\\d+")
 }
 
 # e.g
@@ -226,6 +229,7 @@ compute_summary_and_write_to_file <- function(dir_root, label, ext = ext_default
   summary_df <- summarize_errors_in_subdirectories(dir_root, subfolder_match) %>% format_to_spec
   
   write_csv(summary_df, outpath_name)
+  return(outpath_name)
 }
 
 # compute_summary_and_write_to_file(ls_root, "~/Documents/ndclab/analysis-sandbox/disfluencies_subject-x-passage")
