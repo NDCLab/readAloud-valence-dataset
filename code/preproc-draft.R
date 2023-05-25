@@ -1,8 +1,8 @@
 # Draft script: reading in reconciled Excels, summarizing the errors of each, 
 # and writing that to a new CSV
 #
-# Luc Sahar -- NDCLab, Florida International University
-# last updated 5/23/23
+# Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
+# last updated 5/25/23
 
 # used as samples:
 
@@ -31,44 +31,44 @@ error_types_idiomatic = c(
 )
 
 
-headers_idiomatic_given = c(
-  "id",
-  "passage",
-  "mispron",               # "misprod",
-  "insert",                # "ins_dup",
-  "omit",                  # "omit",
-  "stress",                # "word_stress",
-  "filled",                # "filled_pause",
-  "hes",                   # "hesitation",
-  "elong",                 # "elongation",
-  "correction",            # "corrected",
-  "totalErrSyll",          # "last_precorrection",
-  "totalUncorrErr"         # "actual_prod",
-) # uncommented ones are taken from jess' spec
+# headers_idiomatic_given = c(
+#   "id",
+#   "passage",
+#   "mispron",               # "misprod",
+#   "insert",                # "ins_dup",
+#   "omit",                  # "omit",
+#   "stress",                # "word_stress",
+#   "filled",                # "filled_pause",
+#   "hes",                   # "hesitation",
+#   "elong",                 # "elongation",
+#   "correction",            # "corrected",
+#   "totalErrSyll",          # "last_precorrection",
+#   "totalUncorrErr"         # "actual_prod",
+# ) # uncommented ones are taken from jess' spec
 
 
 ## Read in XLSXes as arguments
 
-build_participant_dirname <- function(root, participant_id) {
+build_participant_dirname <- function(dir_root, participant_id) {
   paste(
-    root,
+    dir_root,
     '/sub-', participant_id, '_reconciled',
     sep = ""
   )
 }
 
-build_psg_fname <- function(root, participant_id, psg) {
+build_full_passage_path <- function(dir_root, participant_id, passage_name) {
   paste(
-    build_participant_dirname(root, participant_id),
+    build_participant_dirname(dir_root, participant_id),
     '/', 
-    psg,
+    passage_name,
     sep = ""
   )
 }
 
-read_in <- function(psg, participant_id, root) {
+read_in <- function(passage_name, participant_id, dir_root) {
   read_xlsx(
-    build_psg_fname(root, participant_id, psg)
+    build_full_passage_path(dir_root, participant_id, passage_name)
   )
 }
 
@@ -88,10 +88,10 @@ raw_readxl_to_df <- function(raw_passage_matrix) {
            as.data.frame) # and convert back to a dataframe
 }
 
-passage_name_to_df <- function(passage_name, participant_id, root) {
-  psg <- read_in(passage_name, participant_id, root)
+passage_name_to_df <- function(passage_name, participant_id, dir_root) {
+  passage <- read_in(passage_name, participant_id, dir_root)
   
-  return(raw_readxl_to_df(psg))
+  return(raw_readxl_to_df(passage))
 }
 
 ## Count up totals per error type for a given passage
@@ -145,10 +145,10 @@ error_summary <- function(passage_df) { # maybe: condense this (top half is not 
   return(summary)
 }
 
-error_summary_with_metadata <- function(passage_name, participant_id, root) {
+error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
   passage_df = passage_name_to_df(passage_name, 
                                   participant_id,
-                                  root)
+                                  dir_root)
   
   summary = error_summary(passage_df)
   
@@ -189,15 +189,15 @@ summarize_errors_in_subdirectories <- function(dir_root, subfolder_match) {
     map_df(generate_summary_for_each_passage_with_metadata, dir_root = dir_root) # summarize all spreadsheets for that participant, for each participant
 }
 
-format_to_spec <- function(summary_df) {
-  # put corrected errors before total errors, based on order in Jess' Google doc
-  pretty <- relocate(summary_df, total_corrections, .before = total_errors) 
-  
-  # give the requested titles
-  colnames(pretty) <- headers_idiomatic_given
-  
-  return(pretty)
-}
+# format_to_spec <- function(summary_df) {
+#   # put corrected errors before total errors, based on order in Jess' Google doc
+#   pretty <- relocate(summary_df, total_corrections, .before = total_errors) 
+#   
+#   # give the requested titles
+#   colnames(pretty) <- headers_idiomatic_given
+#   
+#   return(pretty)
+# }
 
 # and then write it to a file (a CSV)
 
@@ -211,7 +211,7 @@ folder_regex_default = "sub-\\d{6}_reconciled"
 
 
 build_output_filename <- function(label, ext = ext_default, timezone = tz_default, date_format = date_format_default) {
-  # `label` may include the dest directory, if different from script location  
+  # `label` may include the destination directory, if different from script location  
   current_datetime <- now(timezone) %>% format(date_format)
   
   paste(
@@ -226,13 +226,10 @@ compute_summary_and_write_to_file <- function(dir_root, label, ext = ext_default
                                               date_format = date_format_default, subfolder_match = folder_regex_default)
 {
   outpath_name <- build_output_filename(label, ext, timezone, date_format)
-  summary_df <- summarize_errors_in_subdirectories(dir_root, subfolder_match) %>% format_to_spec
+  summary_df <- summarize_errors_in_subdirectories(dir_root, subfolder_match) # %>% format_to_spec
   
   write_csv(summary_df, outpath_name)
   return(outpath_name)
 }
 
 # compute_summary_and_write_to_file(ls_root, "~/Documents/ndclab/analysis-sandbox/disfluencies_subject-x-passage")
-
-
-# does this need to take the filenames from the command line?
