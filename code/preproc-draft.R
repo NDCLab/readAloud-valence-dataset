@@ -1,5 +1,5 @@
-# Draft script: reading in reconciled Excels, summarizing the errors of each, 
-# and writing that to a new CSV
+# Reading in reconciled Excels, summarizing the errors of each, and writing that
+# to a new CSV
 #
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
 # last updated 5/25/23
@@ -31,31 +31,18 @@ error_types_idiomatic = c(
 )
 
 
-# headers_idiomatic_given = c(
-#   "id",
-#   "passage",
-#   "mispron",               # "misprod",
-#   "insert",                # "ins_dup",
-#   "omit",                  # "omit",
-#   "stress",                # "word_stress",
-#   "filled",                # "filled_pause",
-#   "hes",                   # "hesitation",
-#   "elong",                 # "elongation",
-#   "correction",            # "corrected",
-#   "totalErrSyll",          # "last_precorrection",
-#   "totalUncorrErr"         # "actual_prod",
-# ) # uncommented ones are taken from jess' spec
-
-
 ## Read in XLSXes as arguments
 
 build_participant_dirname <- function(dir_root, participant_id) {
   paste(
     dir_root,
+    '/sub-', participant_id,
     '/sub-', participant_id, '_reconciled',
     sep = ""
   )
 }
+# > build_participant_dirname(github_root, 150077)
+# [1] "~/Documents/[...]/preprocessed/error-coding/sub-150077/sub-150077_reconciled"
 
 build_full_passage_path <- function(dir_root, participant_id, passage_name) {
   paste(
@@ -71,10 +58,6 @@ read_in <- function(passage_name, participant_id, dir_root) {
     build_full_passage_path(dir_root, participant_id, passage_name)
   )
 }
-
-ls_root = "~/Documents/ndclab/analysis-sandbox/reconciled-sheets"
-sample_root = "~/Documents/ndclab/analysis-sandbox/sample-sheets"
-# FIXME for HPC
 
 
 ## transform and stuff
@@ -179,39 +162,36 @@ find_participant_id_from_dirname <- function(dirname) {
 }
 
 # e.g
-# > find_participant_id_from_dirname("sub-150077_reconciled/") 
+# > find_participant_id_from_dirname("sub-150077/sub-150077_reconciled") 
 # [1] "150077"
 
 summarize_errors_in_subdirectories <- function(dir_root, subfolder_match) {
   dir_root %>%
-    dir(pattern = subfolder_match) %>% # walk the directory
+    dir(include.dirs = TRUE, recursive = TRUE, pattern = subfolder_match) %>% # walk the directory
     map(find_participant_id_from_dirname) %>% # split it up: sub-150079_reconciled -> 150079
     map_df(generate_summary_for_each_passage_with_metadata, dir_root = dir_root) # summarize all spreadsheets for that participant, for each participant
 }
 
-# format_to_spec <- function(summary_df) {
-#   # put corrected errors before total errors, based on order in Jess' Google doc
-#   pretty <- relocate(summary_df, total_corrections, .before = total_errors) 
-#   
-#   # give the requested titles
-#   colnames(pretty) <- headers_idiomatic_given
-#   
-#   return(pretty)
-# }
+
+# TLDR we don't have to change the regex: we just match on subfolders by 
+# explicitly returning directories (not just files) (include.dirs = TRUE) and 
+# recursing (recursive = TRUE) so that it catches the "_reconciled"-suffixed
+# subfolders
+
+
+folder_regex_default = "sub-\\d{6}_reconciled"
+ext_default = 'csv'
+tz_default = "America/New_York"
+date_format_default = "%Y%m%d_%I%M%P"
+
 
 # and then write it to a file (a CSV)
 
 # current_time <- now("America/New_York") %>% format("%Y%m%d_%I%M%P")
 # e.g. 20230520_1240pm
 
-ext_default = 'csv'
-tz_default = "America/New_York"
-date_format_default = "%Y%m%d_%I%M%P"
-folder_regex_default = "sub-\\d{6}_reconciled"
-
-
 build_output_filename <- function(label, ext = ext_default, timezone = tz_default, date_format = date_format_default) {
-  # `label` may include the destination directory, if different from script location  
+  # `label` may include the destination directory, if different from the working directory when the script is run  
   current_datetime <- now(timezone) %>% format(date_format)
   
   paste(
@@ -226,10 +206,15 @@ compute_summary_and_write_to_file <- function(dir_root, label, ext = ext_default
                                               date_format = date_format_default, subfolder_match = folder_regex_default)
 {
   outpath_name <- build_output_filename(label, ext, timezone, date_format)
-  summary_df <- summarize_errors_in_subdirectories(dir_root, subfolder_match) # %>% format_to_spec
+  summary_df <- summarize_errors_in_subdirectories(dir_root, subfolder_match)
   
   write_csv(summary_df, outpath_name)
   return(outpath_name)
 }
 
-# compute_summary_and_write_to_file(ls_root, "~/Documents/ndclab/analysis-sandbox/disfluencies_subject-x-passage")
+# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed" 
+# I believe the HPC equivalent should be:
+base = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed" # FIXME to be sure
+github_root = paste(base, "error-coding", sep = '/')
+outname_base = paste(base, "disfluencies_subject-x-passage", sep = '/')
+compute_summary_and_write_to_file(github_root, outname_base)
