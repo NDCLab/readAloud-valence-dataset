@@ -81,13 +81,20 @@ ones <- function(row){ which(row == 1) } # for a given error type, which cells a
 count_errors <- function(row){ length(ones(row)) } # for a given error type, how many cells are marked?
 
 fail_unless_all_valid <- function(passage_df) {
+  any_empty = sum(is.na(passage_df)) != 0
+  
+  if (any_empty) {
+    message("\n\t\t<< ERROR REPORT >>")
+    stop("Empty value (NA) in the dataframe!\n")
+  }
+  
   any_invalid = any(passage_df !=0 & passage_df != 1)
   
   if (any_invalid) {
     message("\n\t\t<< ERROR REPORT >>")
     stop("Invalid value (neither 1 nor 0) in the dataframe!\n")
   }
-
+  
   return(passage_df)
 }
 
