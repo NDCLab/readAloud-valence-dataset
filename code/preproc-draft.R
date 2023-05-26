@@ -80,28 +80,21 @@ passage_name_to_df <- function(passage_name, participant_id, dir_root) {
 ones <- function(row){ which(row == 1) } # for a given error type, which cells are marked?
 count_errors <- function(row){ length(ones(row)) } # for a given error type, how many cells are marked?
 
-fail_unless_all_valid <- function(passage_df) {
-  any_empty = sum(is.na(passage_df)) != 0
+fail_unless_all_valid <- function(passage_df, participant_id, passage_name) {
+  report = paste("\n\t\t<< ERROR REPORT", participant_id, "-", passage_name, ">>")
   
-  if (any_empty) {
-    message("\n\t\t<< ERROR REPORT >>")
-    stop("Empty value (NA) in the dataframe!\n")
-  }
+  any_empty = sum(is.na(passage_df)) != 0
+  if (any_empty) {message(report); stop("Empty value (NA) in the dataframe!\n")}
   
   any_invalid = any(passage_df !=0 & passage_df != 1)
-  
-  if (any_invalid) {
-    message("\n\t\t<< ERROR REPORT >>")
-    stop("Invalid value (neither 1 nor 0) in the dataframe!\n")
-  }
-  
+  if(any_invalid) {message(report); stop("Invalid value (neither 1 nor 0) in the dataframe!\n")}
+
   return(passage_df)
 }
 
 count_errors_by_type <- function(passage_df) {
   passage_df %>%
     select(misprod:elongation) %>%
-    fail_unless_all_valid %>%
     map_df(count_errors)
 }
 
@@ -154,11 +147,10 @@ status_message <- function(passage_name, participant_id) {
 error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
   if(DEBUG_MODE) status_message(passage_name, participant_id)
   
-  passage_df = passage_name_to_df(passage_name, 
-                                  participant_id,
-                                  dir_root)
-  
-  summary = error_summary(passage_df)
+  summary = 
+    passage_name_to_df(passage_name, participant_id, dir_root) %>%
+    fail_unless_all_valid(participant_id, passage_name) %>%
+    error_summary
   
   return(
     cbind(
