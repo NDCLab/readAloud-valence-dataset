@@ -5,12 +5,10 @@
 # last updated 5/25/23
 
 # used as samples:
+# 150077, 150079, 150086
 
-# 150077
-# 150079
-# 150086
+DEBUG_MODE = FALSE
 
-# library(tidyverse)
 library(readxl) # read_xlsx
 library(stringr) # str_extract
 library(dplyr) # most things
@@ -42,7 +40,7 @@ build_participant_dirname <- function(dir_root, participant_id) {
   )
 }
 # > build_participant_dirname(github_root, 150077)
-# [1] "~/Documents/[...]/preprocessed/error-coding/sub-150077/sub-150077_reconciled"
+# [1] "/home/[...]/preprocessed/error-coding/sub-150077/sub-150077_reconciled"
 
 build_full_passage_path <- function(dir_root, participant_id, passage_name) {
   paste(
@@ -60,7 +58,7 @@ read_in <- function(passage_name, participant_id, dir_root) {
 }
 
 
-## transform and stuff
+## transform to a dataframe
 raw_readxl_to_df <- function(raw_passage_matrix) {
   df = data.frame(
     raw_passage_matrix[2:9,], # get only the rows misprod ... corrected
@@ -82,10 +80,21 @@ passage_name_to_df <- function(passage_name, participant_id, dir_root) {
 ones <- function(row){ which(row == 1) } # for a given error type, which cells are marked?
 count_errors <- function(row){ length(ones(row)) } # for a given error type, how many cells are marked?
 
+fail_unless_all_valid <- function(passage_df) {
+  any_invalid = any(passage_df !=0 & passage_df != 1)
+  
+  if (any_invalid) {
+    message("\n\t\t<< ERROR REPORT >>")
+    stop("Invalid value (neither 1 nor 0) in the dataframe!\n")
+  }
+
+  return(passage_df)
+}
 
 count_errors_by_type <- function(passage_df) {
-  error_counts <- passage_df %>%
+  passage_df %>%
     select(misprod:elongation) %>%
+    fail_unless_all_valid %>%
     map_df(count_errors)
 }
 
@@ -115,12 +124,11 @@ count_uncorrected_error_syllables <- function(passage_df) {
 
 
 error_summary <- function(passage_df) { # maybe: condense this (top half is not strictly necessary)
-  errors_by_type <- count_errors_by_type(passage_df)
+  summary <- count_errors_by_type(passage_df)
   error_syllable_count <- count_error_syllables_any_type(passage_df)
   corrected_error_syllable_count <- count_corrected_error_syllables(passage_df)
   uncorrected_error_syllable_count <- count_uncorrected_error_syllables(passage_df)
   
-  summary <- errors_by_type
   summary$total_errors <- error_syllable_count
   summary$total_corrections <- corrected_error_syllable_count
   summary$total_uncorrected_errors <- uncorrected_error_syllable_count
@@ -128,7 +136,17 @@ error_summary <- function(passage_df) { # maybe: condense this (top half is not 
   return(summary)
 }
 
+
+status_message <- function(passage_name, participant_id) {
+  status = paste("Generating summary from participant ", participant_id, "'s ", 
+                 passage_name, " passage...",
+                 sep = '')
+  message(status)
+}
+
 error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
+  if(DEBUG_MODE) status_message(passage_name, participant_id)
+  
   passage_df = passage_name_to_df(passage_name, 
                                   participant_id,
                                   dir_root)
@@ -153,8 +171,7 @@ generate_summary_for_each_passage_with_metadata <- function(dir_root, participan
 }
 
 
-# finally: all participants under a directory
-# for every participant in the directory, identified by the form sub_XXXXXX_reconciled,
+# finally: for each participant under a directory, each identified by the form sub_XXXXXX_reconciled,
 # call generate_summary_for_each_passage_with_metadata(the_parentdir_of_all_those, that_id)
 
 find_participant_id_from_dirname <- function(dirname) {
@@ -174,10 +191,8 @@ summarize_errors_in_subdirectories <- function(dir_root, subfolder_match) {
 
 
 # TLDR we don't have to change the regex: we just match on subfolders by 
-# explicitly returning directories (not just files) (include.dirs = TRUE) and 
-# recursing (recursive = TRUE) so that it catches the "_reconciled"-suffixed
-# subfolders
-
+# explicitly returning directories (include.dirs = TRUE) and recursing
+# (recursive = TRUE), so that it catches the "_reconciled"-suffixed subfolders
 
 folder_regex_default = "sub-\\d{6}_reconciled"
 ext_default = 'csv'
