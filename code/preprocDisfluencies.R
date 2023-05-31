@@ -7,7 +7,7 @@
 # used as samples:
 # 150077, 150079, 150086
 
-DEBUG_MODE = FALSE
+DEBUG_MODE = TRUE
 
 library(readxl) # read_xlsx
 library(stringr) # str_extract
@@ -28,6 +28,22 @@ error_types_idiomatic = c(
   "corrected"
 )
 
+folder_regex_default = "sub-\\d{6}_reconciled"
+ext_default = 'csv'
+tz_default = "America/New_York"
+date_format_default = "%Y%m%d_%I%M%P"
+
+# if we're in debug mode, write output dataframes to disk as they are made
+incremental_writeout = if(DEBUG_MODE) "incremental-passages_debugging" else NULL
+
+if(DEBUG_MODE && !fs::is_dir(incremental_writeout))
+  stop(
+    paste("Intended debugging CSV directory (", incremental_writeout, ") not found. Try creating it?", sep = ""))
+
+filler = data.frame( # what we'll use when data is empty or invalid, until the files are manually fixed
+  logical(7), # FALSE 7 times
+  row.names = error_types_idiomatic[1:7] # misprod...elongation
+) %>% t %>% as.data.frame
 
 ## Read in XLSXes as arguments
 
@@ -80,14 +96,20 @@ passage_name_to_df <- function(passage_name, participant_id, dir_root) {
 ones <- function(row){ which(row == 1) } # for a given error type, which cells are marked?
 count_errors <- function(row){ length(ones(row)) } # for a given error type, how many cells are marked?
 
-fail_unless_all_valid <- function(passage_df, participant_id, passage_name) {
+complain_when_invalid <- function(passage_df, participant_id, passage_name) {
   report = paste("\n\t\t<< ERROR REPORT", participant_id, "-", passage_name, ">>")
   
   any_empty = sum(is.na(passage_df)) != 0
-  if (any_empty) {message(report); stop("Empty value (NA) in the dataframe!\n")}
+  if (any_empty) {
+    message(report); message("Empty value (NA) in the dataframe!\n")
+    return(filler) # 7 values of FALSE
+  }
   
   any_invalid = any(passage_df !=0 & passage_df != 1)
-  if(any_invalid) {message(report); stop("Invalid value (neither 1 nor 0) in the dataframe!\n")}
+  if(any_invalid) {
+    message(report); message("Invalid value (neither 1 nor 0) in the dataframe!\n")
+    return(filler) # 7 values of FALSE
+  }
 
   return(passage_df)
 }
@@ -123,15 +145,20 @@ count_uncorrected_error_syllables <- function(passage_df) {
 }
 
 
-error_summary <- function(passage_df) { # maybe: condense this (top half is not strictly necessary)
-  summary <- count_errors_by_type(passage_df)
-  error_syllable_count <- count_error_syllables_any_type(passage_df)
-  corrected_error_syllable_count <- count_corrected_error_syllables(passage_df)
-  uncorrected_error_syllable_count <- count_uncorrected_error_syllables(passage_df)
+error_summary <- function(passage_df) {
+  if (any(passage_df == FALSE)) {
+    # a quick repair instead instead of an error: so we don't have to halt everything and start over
+    summary = passage_df
+    summary$total_errors <- -1
+    summary$total_corrections <- -1
+    summary$total_uncorrected_errors <- -1
+    return(summary)
+  }
   
-  summary$total_errors <- error_syllable_count
-  summary$total_corrections <- corrected_error_syllable_count
-  summary$total_uncorrected_errors <- uncorrected_error_syllable_count
+  summary <- count_errors_by_type(passage_df)
+  summary$total_errors <- count_error_syllables_any_type(passage_df)
+  summary$total_corrections <- count_corrected_error_syllables(passage_df)
+  summary$total_uncorrected_errors <- count_uncorrected_error_syllables(passage_df)
   
   return(summary)
 }
@@ -146,10 +173,10 @@ status_message <- function(passage_name, participant_id) {
 
 error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
   if(DEBUG_MODE) status_message(passage_name, participant_id)
-  
+
   summary = 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
-    fail_unless_all_valid(participant_id, passage_name) %>%
+    complain_when_invalid(participant_id, passage_name) %>%
     error_summary
   
   return(
@@ -162,15 +189,22 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
 }
 
 
+
 # all passages for a participant
-generate_summary_for_each_passage_with_metadata <- function(dir_root, participant_id) {
-  build_participant_dirname(dir_root, participant_id) %>% 
-    dir %>% # passage name _with_ the extension
-    map_df(error_summary_with_metadata, participant_id, dir_root)
+generate_summary_for_each_passage_with_metadata <- function(dir_root, participant_id, write_to = incremental_writeout, date_format = date_format_default) {
+  df = build_participant_dirname(dir_root, participant_id) %>% dir %>% # passage name _with_ the extension
+      map_df(error_summary_with_metadata, participant_id, dir_root)
+
+  if (!is.null(write_to) && fs::is_dir(write_to)) {
+    outfile_debug = paste(write_to, "/", participant_id, "_", now() %>% format(date_format), '.csv', sep = "")
+    write_csv(df, outfile_debug)
+  }
+
+  return(df)
 }
 
 
-# finally: for each participant under a directory, each identified by the form sub_XXXXXX_reconciled,
+# Now, for each participant under a directory, each identified by the form sub_XXXXXX_reconciled,
 # call generate_summary_for_each_passage_with_metadata(the_parentdir_of_all_those, that_id)
 
 find_participant_id_from_dirname <- function(dirname) {
@@ -193,20 +227,13 @@ summarize_errors_in_subdirectories <- function(dir_root, subfolder_match) {
 # explicitly returning directories (include.dirs = TRUE) and recursing
 # (recursive = TRUE), so that it catches the "_reconciled"-suffixed subfolders
 
-folder_regex_default = "sub-\\d{6}_reconciled"
-ext_default = 'csv'
-tz_default = "America/New_York"
-date_format_default = "%Y%m%d_%I%M%P"
-
-
-# and then write it to a file (a CSV)
-
-# current_time <- now("America/New_York") %>% format("%Y%m%d_%I%M%P")
-# e.g. 20230520_1240pm
+# Now finally: write all our results to a file (a CSV)
 
 build_output_filename <- function(label, ext = ext_default, timezone = tz_default, date_format = date_format_default) {
   # `label` may include the destination directory, if different from the working directory when the script is run  
   current_datetime <- now(timezone) %>% format(date_format)
+  # current_time <- now("America/New_York") %>% format("%Y%m%d_%I%M%P")
+  # e.g. 20230520_1240pm
   
   paste(
     label, '_', current_datetime,
@@ -226,9 +253,8 @@ compute_summary_and_write_to_file <- function(dir_root, label, ext = ext_default
   return(outpath_name)
 }
 
-# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed" 
-# I believe the HPC equivalent should be:
-base = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed" # FIXME to be sure
+# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed"
+base = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed"
 github_root = paste(base, "error-coding", sep = '/')
 outname_base = paste(base, "disfluencies_subject-x-passage", sep = '/')
 compute_summary_and_write_to_file(github_root, outname_base)
