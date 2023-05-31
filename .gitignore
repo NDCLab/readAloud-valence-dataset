@@ -7,7 +7,7 @@
 # data specific files
 derivatives/*
 sourcedata/
-code/*.csv
+code/incremental-passages_debugging/*.csv
 
 # extended ANEW from personal correspondence
 materials/readAloud-ldt/stimuli/resources/valence_AnEW+_2796.xlsx
