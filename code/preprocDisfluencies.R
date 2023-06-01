@@ -2,10 +2,11 @@
 # to a new CSV
 #
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 5/25/23
+# last updated 5/31/23
 
-# used as samples:
-# 150077, 150079, 150086
+# NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
+# "iodized _table_ counteracts" instead of the intended "table salt", and sun
+# showed participants "_empower_ individuals" whereas it was coded as "enable"
 
 DEBUG_MODE = TRUE
 
