@@ -254,8 +254,23 @@ compute_summary_and_write_to_file <- function(dir_root, label, ext = ext_default
   return(outpath_name)
 }
 
+collapse_by_participant <- function(filename_in, filename_out) {
+  by_participant <- read_csv(filename_in) %>%
+    unique %>% # dedup
+    group_by(id) %>% summarize(across(misprod:total_uncorrected_errors, sum)) # summarize by participant, across all passages
+
+  write_csv(by_participant, filename_out)
+  return(filename_out)
+}
+
+
 # base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed"
 base = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed"
 github_root = paste(base, "error-coding", sep = '/')
 outname_base = paste(base, "disfluencies_subject-x-passage", sep = '/')
-compute_summary_and_write_to_file(github_root, outname_base)
+collapsed_filename = build_output_filename(label = paste(base, "disfluencies_subject", sep='/'))
+
+summary_file = compute_summary_and_write_to_file(github_root, outname_base)
+collapsed_file = collapse_by_participant(summary_file, collapsed_filename)
+
+print(summary_file); print(collapsed_file)
