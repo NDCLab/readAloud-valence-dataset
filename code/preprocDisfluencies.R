@@ -2,7 +2,7 @@
 # to a new CSV
 #
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 5/31/23
+# last updated 6/2/23
 
 # NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
 # "iodized _table_ counteracts" instead of the intended "table salt", and sun
@@ -201,7 +201,8 @@ status_message <- function(passage_name, participant_id) {
 }
 
 error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
-  if(DEBUG_MODE) status_message(passage_name, participant_id)
+  passage_nickname = fs::path_ext_remove(passage_name) # chomp 'bees.xlsx' to 'bees', e.g.
+  if(DEBUG_MODE) status_message(passage_nickname, participant_id)
 
   summary = 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
@@ -211,8 +212,8 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
   return(
     cbind(
       id = participant_id, # pre-pose an id column
-      passage = fs::path_ext_remove(passage_name), # pre-pose a passage column, chomping 'bees.xlsx' to 'bees', e.g.
-      error_rate = summary$total_errors / syllable_count(passage_name), # errors per syllable- TODO change to words?
+      passage = passage_nickname, # then a passage column
+      error_rate = summary$total_errors / syllable_count(passage_nickname), # then errors per syllable- TODO change to per word?
       summary
     )
   )
