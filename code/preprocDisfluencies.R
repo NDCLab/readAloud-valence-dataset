@@ -46,6 +46,34 @@ filler = data.frame( # what we'll use when data is empty or invalid, until the f
   row.names = error_types_idiomatic[1:7] # misprod...elongation
 ) %>% t %>% as.data.frame
 
+
+# Calculations about the very passages themselves, for things like word ratios
+# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
+base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
+
+
+
+read_all_sheets <- function(excel_path) {
+  sheet_names = excel_sheets(excel_path)
+  read_sheet = function(sheet_name) { read_xlsx(excel_path, sheet = sheet_name)}
+  
+  map_df(sheet_names, read_sheet)
+}
+
+scaffolds_path = paste(base, "code/scaffolds.xlsx", sep = '/')
+scaffolds <- read_all_sheets(scaffolds_path)
+# problem: there's an empty cell in the dams sheet
+
+word_counts <- scaffolds %>% group_by(passage) %>% summarize(across(wordOnset, sum))
+syllable_counts <- scaffolds %>% group_by(passage) %>% summarize(across(syllable_id, length))
+
+word_count <- function(passage_name) { filter(word_counts, passage == passage_name)$wordOnset }
+syllable_count <- function(passage_name) { filter(syllable_counts, passage == passage_name)$syllable_id }
+# FIXME: don't use passage as a column, use it as the row name
+# then use a dataframe with the columns "word_count" and "syllable_count"
+# TODO
+
+
 ## Read in XLSXes as arguments
 
 build_participant_dirname <- function(dir_root, participant_id) {
@@ -184,6 +212,7 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
     cbind(
       id = participant_id, # pre-pose an id column
       passage = fs::path_ext_remove(passage_name), # pre-pose a passage column, chomping 'bees.xlsx' to 'bees', e.g.
+      error_rate = summary$total_errors / syllable_count(passage_name), # errors per syllable- TODO change to words?
       summary
     )
   )
@@ -254,8 +283,7 @@ compute_summary_and_write_to_file <- function(dir_root, label, ext = ext_default
   return(outpath_name)
 }
 
-# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed"
-base = "/home/data/NDClab/datasets/readAloud-valence-dataset/derivatives/preprocessed"
-github_root = paste(base, "error-coding", sep = '/')
-outname_base = paste(base, "disfluencies_subject-x-passage", sep = '/')
+annotations_base = paste(base, "derivatives/preprocessed", sep = '/')
+github_root = paste(annotations_base, "error-coding", sep = '/')
+outname_base = paste(annotations_base, "disfluencies_subject-x-passage", sep = '/')
 compute_summary_and_write_to_file(github_root, outname_base)
