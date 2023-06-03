@@ -46,6 +46,8 @@ filler = data.frame( # what we'll use when data is empty or invalid, until the f
   row.names = error_types_idiomatic[1:7] # misprod...elongation
 ) %>% t %>% as.data.frame
 
+dummy <- function(.) {-1} # ignore argument, just return dummy -1
+fill_dummy <- function(df, cols) { cbind(df, setNames(lapply(cols, dummy), cols)) } # fill -1 into all listed cols
 
 # Calculations about the very passages themselves, for things like word ratios
 # base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
@@ -177,19 +179,15 @@ count_uncorrected_error_syllables <- function(passage_df) {
 error_summary <- function(passage_df) {
   if (any(passage_df == FALSE)) {
     # a quick repair instead instead of an error: so we don't have to halt everything and start over
-    summary = passage_df
-    summary$total_errors <- -1
-    summary$total_corrections <- -1
-    summary$total_uncorrected_errors <- -1
-    return(summary)
+    return(passage_df %>% fill_dummy(c("total_errors", "total_corrections", "total_uncorrected_errors")))
   }
-  
+
   summary <- count_errors_by_type(passage_df)
-  summary$total_errors <- count_error_syllables_any_type(passage_df)
-  summary$total_corrections <- count_corrected_error_syllables(passage_df)
-  summary$total_uncorrected_errors <- count_uncorrected_error_syllables(passage_df)
-  
-  return(summary)
+  return(summary %>% cbind(
+    total_errors = count_error_syllables_any_type(passage_df),
+    total_corrections = count_corrected_error_syllables(passage_df),
+    total_uncorrected_errors = count_uncorrected_error_syllables(passage_df)
+  ))
 }
 
 
@@ -209,14 +207,12 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
     complain_when_invalid(participant_id, passage_name) %>%
     error_summary
   
-  return(
-    cbind(
-      id = participant_id, # pre-pose an id column
-      passage = passage_nickname, # then a passage column
-      error_rate = summary$total_errors / syllable_count(passage_nickname), # then errors per syllable- TODO change to per word?
-      summary
-    )
-  )
+  return(cbind(
+    id = participant_id, # pre-pose an id column
+    passage = passage_nickname, # then a passage column
+    error_rate = summary$total_errors / syllable_count(passage_nickname), # then errors per syllable- TODO change to per word?
+    summary
+  ))
 }
 
 
