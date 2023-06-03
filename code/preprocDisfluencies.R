@@ -46,8 +46,8 @@ filler = data.frame( # what we'll use when data is empty or invalid, until the f
   row.names = error_types_idiomatic[1:7] # misprod...elongation
 ) %>% t %>% as.data.frame
 
-dummy <- function(.) {-1} # ignore argument, just return dummy -1
-fill_dummy <- function(df, cols) { cbind(df, setNames(lapply(cols, dummy), cols)) } # fill -1 into all listed cols
+dummy <- function(.) NA # ignore argument, just return dummy value
+fill_dummy <- function(df, cols) cbind(df, setNames(lapply(cols, dummy), cols)) # fill dummy value into all listed cols
 
 # Calculations about the very passages themselves, for things like word ratios
 # base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
@@ -175,18 +175,20 @@ count_uncorrected_error_syllables <- function(passage_df) {
     nrow # count them
 }
 
+last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
 
 error_summary <- function(passage_df) {
   if (any(passage_df == FALSE)) {
     # a quick repair instead instead of an error: so we don't have to halt everything and start over
-    return(passage_df %>% fill_dummy(c("total_errors", "total_corrections", "total_uncorrected_errors")))
+    return(passage_df %>% fill_dummy(c("total_errors", "total_corrections", "total_uncorrected_errors", "skipped_end")))
   }
 
   summary <- count_errors_by_type(passage_df)
   return(summary %>% cbind(
     total_errors = count_error_syllables_any_type(passage_df),
     total_corrections = count_corrected_error_syllables(passage_df),
-    total_uncorrected_errors = count_uncorrected_error_syllables(passage_df)
+    total_uncorrected_errors = count_uncorrected_error_syllables(passage_df),
+    skipped_end = last_n_rows_are(passage_df, "omit", n = 10, val = 1)
   ))
 }
 
