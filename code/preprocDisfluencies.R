@@ -2,7 +2,7 @@
 # to a new CSV
 #
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 6/2/23
+# last updated 6/3/23
 
 # NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
 # "iodized _table_ counteracts" instead of the intended "table salt", and sun
@@ -232,7 +232,6 @@ generate_summary_for_each_passage_with_metadata <- function(dir_root, participan
   return(df)
 }
 
-
 # Now, for each participant under a directory, each identified by the form sub_XXXXXX_reconciled,
 # call generate_summary_for_each_passage_with_metadata(the_parentdir_of_all_those, that_id)
 
@@ -244,13 +243,19 @@ find_participant_id_from_dirname <- function(dirname) {
 # > find_participant_id_from_dirname("sub-150077/sub-150077_reconciled") 
 # [1] "150077"
 
+summarize_numeric_cols <- function(df, f, label = as.character(substitute(f)))
+  cbind(id = label, reframe(df, across(where(is.numeric), f)))
+
+append_summary_stats <- function(df)
+  bind_rows(df, summarize_numeric_cols(df, mean), summarize_numeric_cols(df, sd))
+
 summarize_errors_in_subdirectories <- function(dir_root, subfolder_match) {
   dir_root %>%
     dir(include.dirs = TRUE, recursive = TRUE, pattern = subfolder_match) %>% # walk the directory
     map(find_participant_id_from_dirname) %>% # split it up: sub-150079_reconciled -> 150079
-    map_df(generate_summary_for_each_passage_with_metadata, dir_root = dir_root) # summarize all spreadsheets for that participant, for each participant
+    map_df(generate_summary_for_each_passage_with_metadata, dir_root = dir_root) %>% # summarize all spreadsheets for that participant, for each participant
+    append_summary_stats # add rows for mean and standard deviation
 }
-
 
 # TLDR we don't have to change the regex: we just match on subfolders by 
 # explicitly returning directories (include.dirs = TRUE) and recursing
