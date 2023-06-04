@@ -167,9 +167,15 @@ count_uncorrected_error_syllables <- function(passage_df) {
     nrow # count them
 }
 
+count_nonadjacents <- function(passage_df, passage_scaffold, error_type) {
+  cbind(passage_scaffold, passage_df) %>% # align scaffold info with annotated syllables
+    filter({{error_type}} == 1 & (wordOnset == 1 | lag({{error_type}}) != 1)) %>% # (a) word-initial or (b) *not* preceded by an adjacent one
+    nrow # how many?
+}
+
 last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
 
-error_summary <- function(passage_df) {
+error_summary <- function(passage_df, passage_name) {
   if (any(passage_df == FALSE)) {
     # a quick repair instead instead of an error: so we don't have to halt everything and start over
     return(passage_df %>% fill_dummy(c("errors", "corrections", "uncorrected_errors", "skipped_end")))
@@ -177,6 +183,7 @@ error_summary <- function(passage_df) {
 
   summary <- count_errors_by_type(passage_df)
   return(summary %>% cbind(
+    distinct_misprod = count_nonadjacents(passage_df, scaffolds[[passage_name]], misprod),
     errors = count_error_syllables_any_type(passage_df),
     corrections = count_corrected_error_syllables(passage_df),
     uncorrected_errors = count_uncorrected_error_syllables(passage_df),
@@ -203,7 +210,7 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
   summary = 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
     complain_when_invalid(participant_id, passage_name) %>%
-    error_summary %>%
+    error_summary(passage_nickname) %>%
     append_per_syllable_rates(syllable_counts[[passage_nickname]]) # then errors per syllable- TODO change to per word?
   
   return(cbind(
@@ -212,7 +219,6 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
     summary
   ))
 }
-
 
 
 # all passages for a participant
@@ -253,9 +259,8 @@ summarize_errors_in_subdirectories <- function(dir_root, subfolder_match) {
     append_summary_stats # add rows for mean and standard deviation
 }
 
-# TLDR we don't have to change the regex: we just match on subfolders by 
-# explicitly returning directories (include.dirs = TRUE) and recursing
-# (recursive = TRUE), so that it catches the "_reconciled"-suffixed subfolders
+# we've matched subfolders by explicitly returning directories (include.dirs = 
+# TRUE) and recursing (recursive = TRUE), thus catching -"_reconciled" subfolders
 
 # Now finally: write all our results to a file (a CSV)
 
