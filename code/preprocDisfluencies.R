@@ -2,7 +2,7 @@
 # to a new CSV
 #
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 6/3/23
+# last updated 6/4/23
 
 # NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
 # "iodized _table_ counteracts" instead of the intended "table salt", and sun
@@ -52,28 +52,20 @@ fill_dummy <- function(df, cols) cbind(df, setNames(lapply(cols, dummy), cols)) 
 # Calculations about the very passages themselves, for things like word ratios
 # base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
 base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
+scaffolds_path = paste(base, "code/scaffolds.xlsx", sep = '/')
+titles = excel_sheets(scaffolds_path) # antarctica ... vegas
 
-
-
-read_all_sheets <- function(excel_path) {
-  sheet_names = excel_sheets(excel_path)
-  read_sheet = function(sheet_name) { read_xlsx(excel_path, sheet = sheet_name)}
-  
-  map_df(sheet_names, read_sheet)
+into_dict <- function(sequence, f, env = new.env()) {
+  map(sequence, \(x) env[[x]] = f(x)) # fill a dictionary that maps x -> f(x)
+  return(env)
 }
 
-scaffolds_path = paste(base, "code/scaffolds.xlsx", sep = '/')
-scaffolds <- read_all_sheets(scaffolds_path)
-# problem: there's an empty cell in the dams sheet
+tally_up <- function(df, col) # how many unique values in col?
+  df[[col]] %>% unique %>% length
 
-word_counts <- scaffolds %>% group_by(passage) %>% summarize(across(wordOnset, sum))
-syllable_counts <- scaffolds %>% group_by(passage) %>% summarize(across(syllable_id, length))
-
-word_count <- function(passage_name) { filter(word_counts, passage == passage_name)$wordOnset }
-syllable_count <- function(passage_name) { filter(syllable_counts, passage == passage_name)$syllable_id }
-# FIXME: don't use passage as a column, use it as the row name
-# then use a dataframe with the columns "word_count" and "syllable_count"
-# TODO
+scaffolds       = into_dict(titles, \(x) read_xlsx(scaffolds_path, sheet = x))
+word_counts     = into_dict(titles, \(x) tally_up(scaffolds[[x]], "word_id"))
+syllable_counts = into_dict(titles, \(x) tally_up(scaffolds[[x]], "syllable_id"))
 
 
 ## Read in XLSXes as arguments
@@ -212,7 +204,7 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
     complain_when_invalid(participant_id, passage_name) %>%
     error_summary %>%
-    append_per_syllable_rates(syllable_count(passage_nickname)) # then errors per syllable- TODO change to per word?
+    append_per_syllable_rates(syllable_counts[[passage_nickname]]) # then errors per syllable- TODO change to per word?
   
   return(cbind(
     id = participant_id, # pre-pose an id column
