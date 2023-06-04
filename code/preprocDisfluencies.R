@@ -180,14 +180,14 @@ last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
 error_summary <- function(passage_df) {
   if (any(passage_df == FALSE)) {
     # a quick repair instead instead of an error: so we don't have to halt everything and start over
-    return(passage_df %>% fill_dummy(c("total_errors", "total_corrections", "total_uncorrected_errors", "skipped_end")))
+    return(passage_df %>% fill_dummy(c("errors", "corrections", "uncorrected_errors", "skipped_end")))
   }
 
   summary <- count_errors_by_type(passage_df)
   return(summary %>% cbind(
-    total_errors = count_error_syllables_any_type(passage_df),
-    total_corrections = count_corrected_error_syllables(passage_df),
-    total_uncorrected_errors = count_uncorrected_error_syllables(passage_df),
+    errors = count_error_syllables_any_type(passage_df),
+    corrections = count_corrected_error_syllables(passage_df),
+    uncorrected_errors = count_uncorrected_error_syllables(passage_df),
     skipped_end = last_n_rows_are(passage_df, "omit", n = 10, val = 1)
   ))
 }
@@ -200,6 +200,10 @@ status_message <- function(passage_name, participant_id) {
   message(status)
 }
 
+append_per_syllable_rates <- function(error_df, count) {
+  mutate(error_df, across(misprod:uncorrected_errors, \(x) x / count, .names = "{.col}_rate"))
+}
+
 error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
   passage_nickname = fs::path_ext_remove(passage_name) # chomp 'bees.xlsx' to 'bees', e.g.
   if(DEBUG_MODE) status_message(passage_nickname, participant_id)
@@ -207,12 +211,12 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
   summary = 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
     complain_when_invalid(participant_id, passage_name) %>%
-    error_summary
+    error_summary %>%
+    append_per_syllable_rates(syllable_count(passage_nickname)) # then errors per syllable- TODO change to per word?
   
   return(cbind(
     id = participant_id, # pre-pose an id column
     passage = passage_nickname, # then a passage column
-    error_rate = summary$total_errors / syllable_count(passage_nickname), # then errors per syllable- TODO change to per word?
     summary
   ))
 }
