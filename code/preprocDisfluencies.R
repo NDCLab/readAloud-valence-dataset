@@ -2,7 +2,7 @@
 # to a new CSV
 #
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 6/4/23
+# last updated 6/9/23
 
 # NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
 # "iodized _table_ counteracts" instead of the intended "table salt", and sun
@@ -167,13 +167,39 @@ count_uncorrected_error_syllables <- function(passage_df) {
     nrow # count them
 }
 
-count_nonadjacents <- function(passage_df, passage_scaffold, error_type) {
+count_distinct <- function(passage_df, passage_scaffold, error_type) {
+  # Distinct if they don't touch. But if they're in separate words, they can touch.
   cbind(passage_scaffold, passage_df) %>% # align scaffold info with annotated syllables
-    filter({{error_type}} == 1 & (wordOnset == 1 | lag({{error_type}}) != 1)) %>% # (a) word-initial or (b) *not* preceded by an adjacent one
+    filter({{error_type}} == 1 & (wordOnset == 1 | lag({{error_type}}) != 1)) %>% # an error that's (a) word-initial or (b) *not* preceded by an adjacent one
+    nrow # how many?
+}
+
+count_distinct_across_words <- function(passage_df, passage_scaffold, error_type) {
+  # Even if they're in different words, they can't touch
+  cbind(passage_scaffold, passage_df) %>% # align scaffold info with annotated syllables
+    filter({{error_type}} == 1 & lag({{error_type}}) != 1) %>% # it's an error and the syllable before it isn't
     nrow # how many?
 }
 
 last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
+
+error_streaks <- function(passage_df) {
+  errors_of <- \(df) filter(df, values == 1)$lengths # ignore streaks of non-errors. get the lengths of those remaining
+
+  map(passage_df, # by error type:
+      compose(rle, as.list.data.frame, as.data.frame, errors_of, .dir = "forward")) # find the streaks, get them back to a df, then ignore non-error ones
+}
+
+tally_repeat_errors_beyond_length_n <- function(error_streaks_df, error_type, n) {
+  # first get each sequence of at least n errors of the same type in a row
+  streaks = error_streaks_df[[{{error_type}}]] %>% keep(\(x) x >= n)
+  sum(streaks) - length(streaks) # ignore errors beyond the first in each streak; this gets the overcount
+}
+
+ignore_sequences_beyond_length_n <- function(summary_df, error_streaks_df, error_type, n) {
+  summary_df[[{{error_type}}]] - # raw count
+    tally_repeat_errors_beyond_length_n(error_streaks_df, {{error_type}}, n) # minus excess count
+}
 
 error_summary <- function(passage_df, passage_name) {
   if (any(passage_df == FALSE)) {
@@ -182,12 +208,17 @@ error_summary <- function(passage_df, passage_name) {
   }
 
   summary <- count_errors_by_type(passage_df)
+  streaks <- error_streaks(passage_df)
   return(summary %>% cbind(
-    distinct_misprod = count_nonadjacents(passage_df, scaffolds[[passage_name]], misprod),
-    errors = count_error_syllables_any_type(passage_df),
-    corrections = count_corrected_error_syllables(passage_df),
-    uncorrected_errors = count_uncorrected_error_syllables(passage_df),
-    skipped_end = last_n_rows_are(passage_df, "omit", n = 10, val = 1)
+    distinct_misprod     = count_distinct(passage_df, scaffolds[[passage_name]], misprod),
+    distinct_ins_dup     = ignore_sequences_beyond_length_n(summary, streaks, "ins_dup", n = 6),
+    distinct_word_stress = count_distinct(passage_df, scaffolds[[passage_name]], word_stress),
+    distinct_hesitation  = count_distinct_across_words(passage_df, scaffolds[[passage_name]], hesitation),
+
+    errors               = count_error_syllables_any_type(passage_df),
+    corrections          = count_corrected_error_syllables(passage_df),
+    uncorrected_errors   = count_uncorrected_error_syllables(passage_df),
+    skipped_end          = last_n_rows_are(passage_df, "omit", n = 10, val = 1)
   ))
 }
 
