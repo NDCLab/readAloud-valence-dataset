@@ -50,8 +50,8 @@ dummy <- function(.) NA # ignore argument, just return dummy value
 fill_dummy <- function(df, cols) cbind(df, setNames(lapply(cols, dummy), cols)) # fill dummy value into all listed cols
 
 # Calculations about the very passages themselves, for things like word ratios
-# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
-base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
+base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
+# base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
 scaffolds_path = paste(base, "code/scaffolds.xlsx", sep = '/')
 titles = excel_sheets(scaffolds_path) # antarctica ... vegas
 
@@ -183,23 +183,88 @@ count_distinct_across_words <- function(passage_df, passage_scaffold, error_type
 
 last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
 
-error_streaks <- function(passage_df) {
-  errors_of <- \(df) filter(df, values == 1)$lengths # ignore streaks of non-errors. get the lengths of those remaining
-
-  map(passage_df, # by error type:
-      compose(rle, as.list.data.frame, as.data.frame, errors_of, .dir = "forward")) # find the streaks, get them back to a df, then ignore non-error ones
+error_streak_lengths <- function(passage_df) {
+  streak_lengths_for_error_type = compose(
+    rle, # streaks of repeat values
+    as.list.data.frame, # as lists
+    as.data.frame, # as df: lengths and values
+    \(df) filter(df, values == 1)$lengths, # lengths of the error streaks only
+    .dir = "forward"
+  )
+  map(passage_df, streak_lengths_for_error_type) # do this for each error type
 }
 
 tally_repeat_errors_beyond_length_n <- function(error_streaks_df, error_type, n) {
-  # first get each sequence of at least n errors of the same type in a row
+  # first get each sequence of at least n errors of the same type in a row:
   streaks = error_streaks_df[[{{error_type}}]] %>% keep(\(x) x >= n)
   sum(streaks) - length(streaks) # ignore errors beyond the first in each streak; this gets the overcount
 }
 
-ignore_sequences_beyond_length_n <- function(summary_df, error_streaks_df, error_type, n) {
+count_without_sequences_beyond_length_n <- function(summary_df, error_streaks_df, error_type, n) {
   summary_df[[{{error_type}}]] - # raw count
     tally_repeat_errors_beyond_length_n(error_streaks_df, {{error_type}}, n) # minus excess count
 }
+
+
+colnames_from_range <- function(df, colrange)
+  colnames(select(df, {{colrange}}))
+
+# append_lookback <- function(df, col, lookback_index) {
+#   # Add a new column (e.g. prev_misprod4) representing the value of e.g. misprod, four rows prior
+#   # This is useful for hunting for patterns of errors in a particular sequence
+#   mutate(df,
+#          "prev_{{col}}{lookback_index}" :=
+#            lag({{col}}, n = lookback_index))
+# }
+
+append_lookback2 <- function(df, col, lookback_index) {
+  # Add a new column (e.g. prev_misprod4) representing the value of e.g. misprod, four rows prior
+  # This is useful for hunting for patterns of errors in a particular sequence
+  mutate(df,
+         "prev_{col}{lookback_index}" :=
+           lag(df[[col]], n = lookback_index))
+}
+
+append_lookback_multicol <- function(df, colrange, loopback_index) {
+  # for every column in passed range, create a new column looking back at the indexth row for that column
+  col_list = colnames_from_range(df, {{colrange}})
+
+  reduce(col_list,
+      \(df_acc, colname) append_lookback2(df_acc, {{colname}}, loopback_index),
+      .init = df)
+}
+
+append_lookbacks_multicol <- function(df, colrange, lookback_count) {
+  # Use append_lookback successively on the same df, on each index from 1..lookback_count
+  # col=hesitation, lookback_count=3 adds a column for hesitations three rows prior, 
+  # another for hesitations two rows prior, and another for hesitations one row prior
+  reduce(
+    1:lookback_count,
+    partial(append_lookback_multicol, colrange = {{colrange}}),
+    .init = df
+  )
+}
+
+
+a_b_sequence_multicol <- function(df, errtypes_a, errtypes_b, prior_context = 1) {   
+  # a: LHS errors; b: RHS errors; context: how many rows back we can look for LHS errors
+
+  lhs_cols = colnames_from_range(df, {{errtypes_a}})
+  rhs_cols = colnames_from_range(df, {{errtypes_b}})
+  
+  lookbacks_regex = lhs_cols %>% paste(collapse = "|") %>% paste("prev_(", ., ").*", sep = "") # as in prev_(misprod|hesitation).*
+
+  df_with_lhs_lookbacks = append_lookbacks_multicol(df, {{errtypes_a}}, prior_context)
+  
+  
+  filter(df_with_lhs_lookbacks,
+         if_any(rhs_cols, ~ . == 1) & if_any(matches(lookbacks_regex), ~ . == 1))
+}
+
+count_a_b_sequence_multicol <- function(df, errtypes_a, errtypes_b, prior_context = 1)
+  a_b_sequence_multicol(df, {{errtypes_a}}, {{errtypes_b}}, prior_context) %>% nrow
+# finally
+
 
 error_summary <- function(passage_df, passage_name) {
   if (any(passage_df == FALSE)) {
@@ -208,12 +273,19 @@ error_summary <- function(passage_df, passage_name) {
   }
 
   summary <- count_errors_by_type(passage_df)
-  streaks <- error_streaks(passage_df)
+  streaks <- error_streak_lengths(passage_df)
   return(summary %>% cbind(
     distinct_misprod     = count_distinct(passage_df, scaffolds[[passage_name]], misprod),
-    distinct_ins_dup     = ignore_sequences_beyond_length_n(summary, streaks, "ins_dup", n = 6),
+    distinct_ins_dup     = count_without_sequences_beyond_length_n(summary, streaks, "ins_dup", n = 6),
     distinct_word_stress = count_distinct(passage_df, scaffolds[[passage_name]], word_stress),
     distinct_hesitation  = count_distinct_across_words(passage_df, scaffolds[[passage_name]], hesitation),
+
+    hes_after_misprod    = count_a_b_sequence_multicol(passage_df, misprod, hesitation, prior_context = 4),
+    hes_after_err        = count_a_b_sequence_multicol(passage_df, misprod:word_stress, hesitation, prior_context = 4), # all the error types not associated with speed or fluency
+    elong_after_misprod  = count_a_b_sequence_multicol(passage_df, misprod, elongation, prior_context = 4),
+    elong_after_err      = count_a_b_sequence_multicol(passage_df, misprod:word_stress, elongation, prior_context = 4), # all the error types not associated with speed or fluency
+    hes_after_elong      = count_a_b_sequence_multicol(passage_df, elongation, hesitation),
+    elong_after_hes      = count_a_b_sequence_multicol(passage_df, hesitation, elongation), # FIXME: it would be nice to generate all these at once
 
     errors               = count_error_syllables_any_type(passage_df),
     corrections          = count_corrected_error_syllables(passage_df),
