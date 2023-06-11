@@ -92,8 +92,7 @@ passage_name_to_df <- function(passage_name, participant_id, dir_root)
 
 
 ## Counting up totals for a given passage
-ones <- function(row){ which(row == 1) } # for a given error type, which cells are marked?
-count_errors <- function(row){ length(ones(row)) } # for a given error type, how many cells are marked?
+get_rows_with_a_one <- function(df) filter(df, if_any(everything(), ~ . == 1))
 
 complain_when_invalid <- function(passage_df, participant_id, passage_name) {
   report = paste("\n\t\t<< ERROR REPORT", participant_id, "-", passage_name, ">>")
@@ -114,26 +113,26 @@ complain_when_invalid <- function(passage_df, participant_id, passage_name) {
 }
 
 count_errors_by_type <- function(passage_df)
-  passage_df %>% select(misprod:elongation) %>% map_df(count_errors)
+  passage_df %>% select(misprod:elongation) %>% map_df(as.numeric) %>% colSums
 
 count_error_syllables_any_type <- function(passage_df) # grand total, across types
   passage_df %>%
     select(misprod:elongation) %>% # only the error columns
-    filter_all(any_vars(. == 1)) %>% # get only the rows that have a 1 somewhere i.e. an error
+    get_rows_with_a_one %>% # only the rows that have an error somewhere
     nrow # count them
 
 count_corrected_error_syllables <- function(passage_df)
   passage_df %>% 
     filter(corrected == 1) %>% # only get corrected rows
     select(misprod:elongation) %>% # now let's only look at their error columns
-    filter_all(any_vars(. == 1)) %>% # get only the rows that have an error somewhere
+    get_rows_with_a_one %>% # only the rows that have an error somewhere
     nrow
 
 count_uncorrected_error_syllables <- function(passage_df)
   passage_df %>% 
     filter(corrected == 0) %>% # only get uncorrected ones
     select(misprod:elongation) %>% # now let's only look at their error columns
-    filter_all(any_vars(. == 1)) %>% # get only the rows that have an error somewhere
+    get_rows_with_a_one %>% # only the rows that have an error somewhere
     nrow
 
 count_distinct <- function(passage_df, passage_scaffold, error_type)
