@@ -396,7 +396,7 @@ outpath <- paste(sep = "", annotations_base, '/', label, timestamp, ".csv")
 # e.g. "./some/path/disfluencies_20230520_1240pm.csv"
 
 github_root %>%
-  summarize_errors_in_subdirectories("sub-\\d{6}_reconciled") %>%
+  summarize_errors_in_subdirectories("^sub-\\d{6}_reconciled$") %>%
   write_csv(outpath)
 
 print(outpath)
