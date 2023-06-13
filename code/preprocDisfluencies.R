@@ -1,14 +1,99 @@
 # Reading in reconciled Excels, summarizing the errors of each, and writing that
 # to a new CSV
-#
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 6/11/23
+# last updated 2023-06-13
 
 # NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
 # "iodized _table_ counteracts" instead of the intended "table salt", and sun
 # showed participants "_empower_ individuals" whereas it was coded as "enable"
 
-DEBUG_MODE = TRUE
+### --- IO information --- ###
+##  INPUTS
+#     This script relies on two external stateful components:
+#       - scaffolds
+#       - passage annotations
+#
+#     Scaffolds are stored in an Excel file with one sheet per passage. Each
+#     sheet contains a list of each syllable and a list of each word, aligned
+#     such that it is apparent which syllables belong to which word.
+#
+#     For our purposes, this is important for calculating word-level errors (as
+#     in "word stress errors", which we have considered to be errors that affect
+#     whole words rather than individual errors), for determining whether errors
+#     marked on adjacent syllables constitute discrete errors or just one error
+#     (as in misproductions, which we here consider to be discrete when they
+#     don't touch or when they touch at a word boundary, but not when they touch
+#     inside a word), and for calculating rates of errors per syllable or per
+#     word (the scaffolds make it simple to count the words or syllables that
+#     each passage has).
+#
+#     Each passage annotation is a single Excel file consisting of rows with the
+#     error types and two header rows---one for the passage's words, and another
+#     below it for the passage's syllables. Below that, each cell thus
+#     represents the presence or absence of an error of a particular type on a
+#     particular syllable in the text. Because we're interested in calculations
+#     by error type, we will transpose each annotation once it is read into a
+#     dataframe, such that its columns are the error types and its rows are the
+#     syllables.
+#
+#
+##  PARAMETERS
+#     This script uses a couple of repeat conventions. Hopefully it is as clear
+#     and consistent as intended. Some clarifications:
+#       -  path: a fully specified filesystem path to a file
+#       -  dir: likewise, but for a directory (folder)
+#       - "name": often used to distinguish whether we're talking about the text
+#                 label -- the string identifying a file -- rather than the file
+#                 itself or its contents
+#       - df: dataframe, the R structure
+#       - DEBUG_MODE: a 'flag' which when set to TRUE enables features including
+#                 increased verbosity and incremental outputs (in case the
+#                 program fails before creating the intended file per below)
+#       - incremental_writeout: the name of the directory to which incremental
+#                 outputs will periodically be saved in debug mode
+#       - error_types_idiomatic: R-/dataframe- friendly names of the error types
+#       - dict: a dictionary, used here for storing the scaffolds, the word
+#               counts per passage, and the syllable counts per passage. This
+#               prevents this from having to be recomputed for >1000 passages.
+#               This is implemented as a new environment, but the idea of a
+#               dictionary is familiar and the syntax of accessing an `env` in
+#               R is similar to that of dictionaries in languages like Python.
+#               Another option would be memoizing the function.
+#       - lookbacks: columns appended to a df representing, at each row, the
+#               value of some other column X rows back. This appears to be the
+#               best way to perform sophisticated comparisons across errors over
+#               a range of previous syllables.
+#               For example, we might want to look for all misproductions,
+#               insertions, and omissions occurring within four syllables of a
+#               following hesitation or elongation---one way we might want to
+#               look for potential cases of post-error slowing.
+#
+#     Everything else is intended to be as simple and self-explanatory as
+#     possible. The spirit of the style is to have functions that are modular,
+#     digestible, and whose titles are informative enough that reading the body
+#     is typically unnecessary. Ideally, this makes code easier to understand
+#     and to maintain.
+#
+#
+##  OUTPUT
+#     This script, when debug mode is not turned on (see above), writes only one
+#     file: a massive CSV containing one row per participant per passage (there
+#     are 20 rows per participant, assuming they read all passages).
+#     Specific directories (rather than parameter names) are named with "base";
+#     this was arbitrary.
+#
+#     That CSV is written to `outpath`, which is currently the concatenation of
+#     the annotations root directory `annotations_base`, a somewhat useful
+#     file name prefix (`label`), the current date and time (`timestamp`), and
+#     the file extension '.csv'.
+#
+#     That file name is the last value returned if the script has run through in
+#     its entirety. Other information is emitted by R along the way, along with
+#     some other status updates when debug mode is turned on.
+##
+### --- IO information --- ###
+
+DEBUG_MODE = FALSE
 
 library(readxl) # read_xlsx
 library(stringr) # str_extract
@@ -68,7 +153,7 @@ build_participant_dirname <- function(dir_root, participant_id) # github_root, 1
 build_full_passage_path <- function(dir_root, participant_id, passage_name)
   paste(sep = "",
     build_participant_dirname(dir_root, participant_id),
-    '/', 
+    '/',
     passage_name)
 
 raw_readxl_to_df <- function(raw_passage_matrix) {
@@ -76,7 +161,7 @@ raw_readxl_to_df <- function(raw_passage_matrix) {
     raw_passage_matrix[2:9,], # get only the rows misprod ... corrected
     row.names = error_types_idiomatic
   ) %>% t
-  
+
   return(df[-1,] %>% # ignore the original titles
            as.data.frame) # and convert back to a dataframe
 }
@@ -92,13 +177,13 @@ get_rows_with_a_one <- function(df) filter(df, if_any(everything(), ~ . == 1))
 
 complain_when_invalid <- function(passage_df, participant_id, passage_name) {
   report = paste("\n\t\t<< ERROR REPORT", participant_id, "-", passage_name, ">>")
-  
+
   any_empty = sum(is.na(passage_df)) != 0
   if (any_empty) {
     message(report); message("Empty value (NA) in the dataframe!\n")
     return(filler) # 7 values of FALSE
   }
-  
+
   any_invalid = any(passage_df !=0 & passage_df != 1)
   if(any_invalid) {
     message(report); message("Invalid value (neither 1 nor 0) in the dataframe!\n")
@@ -120,14 +205,14 @@ count_error_syllables_any_type <- function(passage_df) # grand total, across typ
     nrow # count them
 
 count_corrected_error_syllables <- function(passage_df)
-  passage_df %>% 
+  passage_df %>%
     filter(corrected == 1) %>% # only get corrected rows
     errcols %>% # now let's only look at their error columns
     get_rows_with_a_one %>% # only the rows that have an error somewhere
     nrow
 
 count_uncorrected_error_syllables <- function(passage_df)
-  passage_df %>% 
+  passage_df %>%
     filter(corrected == 0) %>% # only get uncorrected ones
     errcols %>% # now let's only look at their error columns
     get_rows_with_a_one %>% # only the rows that have an error somewhere
@@ -190,7 +275,7 @@ append_lookback_multicol <- function(df, colrange, loopback_index) {
 
 append_lookbacks_multicol <- function(df, colrange, lookback_count)
   # Use append_lookback_multicol successively on the same df, on each index from 1..lookback_count
-  # Ex: col=hesitation, lookback_count=3 will add a column for hesitations three rows prior, 
+  # Ex: col=hesitation, lookback_count=3 will add a column for hesitations three rows prior,
   # another for hesitations two rows prior, and another for hesitations one row prior
   reduce(1:lookback_count,
          partial(append_lookback_multicol, colrange = {{colrange}}),
@@ -202,12 +287,12 @@ a_b_sequence <- function(df, errtypes_a, errtypes_b, prior_context = 1) {
 
   lhs_cols = colnames_from_range(df, {{errtypes_a}})
   rhs_cols = colnames_from_range(df, {{errtypes_b}})
-  
+
   lookbacks_regex = lhs_cols %>% paste(collapse = "|") %>% paste("prev_(", ., ").*", sep = "") # as in prev_(misprod|hesitation).*
 
   df_with_lhs_lookbacks = append_lookbacks_multicol(df, {{errtypes_a}}, prior_context)
-  
-  
+
+
   filter(df_with_lhs_lookbacks,
          if_any(rhs_cols, ~ . == 1) & if_any(matches(lookbacks_regex), ~ . == 1))
 }
@@ -246,7 +331,7 @@ error_summary <- function(passage_df, passage_name) {
 
 
 status_message <- function(passage_name, participant_id) {
-  status = paste("Generating summary from participant ", participant_id, "'s ", 
+  status = paste("Generating summary from participant ", participant_id, "'s ",
                  passage_name, " passage...",
                  sep = '')
   message(status)
@@ -260,12 +345,12 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
   passage_nickname = fs::path_ext_remove(passage_name) # chomp 'bees.xlsx' to 'bees', e.g.
   if(DEBUG_MODE) status_message(passage_nickname, participant_id)
 
-  summary = 
+  summary =
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
     complain_when_invalid(participant_id, passage_name) %>%
     error_summary(passage_nickname) %>%
     append_per_syllable_rates(syllable_counts[[passage_nickname]]) # then errors per syllable- TODO change to per word?
-  
+
   return(cbind(
     id = participant_id, # pre-pose an id column
     passage = passage_nickname, # then a passage column
@@ -302,7 +387,7 @@ summarize_errors_in_subdirectories <- function(dir_root, subfolder_match)
     map_df(generate_summary_for_each_passage_with_metadata, dir_root = dir_root) %>% # summarize all spreadsheets for that participant, for each participant
     append_summary_stats # add rows for mean and standard deviation
 
-# we've matched subfolders by explicitly returning directories (include.dirs = 
+# we've matched subfolders by explicitly returning directories (include.dirs =
 # TRUE) and recursing (recursive = TRUE), thus catching -"_reconciled" subfolders
 
 ## Now finally: write all our results to a file (a CSV)
