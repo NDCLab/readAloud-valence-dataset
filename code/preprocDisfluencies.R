@@ -230,6 +230,33 @@ count_distinct_across_words <- function(passage_df, passage_scaffold, error_type
     filter({{error_type}} == 1 & lag({{error_type}}) != 1) %>% # it's an error and the syllable before it isn't
     nrow
 
+drop_first_syllable <- function(df) slice(df, -1)
+
+drop_until_next_word <- function(df) {
+  df = drop_first_syllable(df) # we don't care about this row we've already compared to
+
+  first_word_onset = match(1, df$wordOnset, nomatch = 0) # first matching index, else 0
+  end_index        = ifelse(first_word_onset == 0, 0, nrow(df)) # the actual end, unless there's no more new words left to check
+
+  return(df[first_word_onset:end_index,])
+}
+
+count_errors_by_word <- function(df, error_type, acc = 0) { # -> int
+  if(nrow(df) == 0) return(acc) # stop: we're at the end of the passage
+  err_on_current_syllable = df[1,] %>% select({{error_type}})
+
+  if(err_on_current_syllable == 1) { # this syllable has this error!
+    acc = acc + 1                    # therefore another word (this one) has this error!
+    rest = drop_until_next_word(df)  # so we skip ahead to the next word
+  } else {
+    rest = drop_first_syllable(df)   # otherwise, no skipping - we just move on to the next syllable
+  }
+
+  # now recurse on rest of passage, with potentially increased accumulator
+  return(count_errors_by_word(rest, {{error_type}}, acc))
+}
+
+
 last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
 
 error_streak_lengths <- function(passage_df) {
@@ -309,11 +336,12 @@ error_summary <- function(passage_df, passage_name) {
 
   summary <- count_errors_by_type(passage_df)
   streaks <- error_streak_lengths(passage_df)
+  passage_x_scaffold <- cbind(scaffolds[[passage_name]], passage_df)
   return(summary %>% cbind(
-    distinct_misprod     = count_distinct(passage_df, scaffolds[[passage_name]], misprod),
-    distinct_ins_dup     = count_without_sequences_beyond_length_n(summary, streaks, "ins_dup", n = 6),
-    distinct_word_stress = count_distinct(passage_df, scaffolds[[passage_name]], word_stress),
-    distinct_hesitation  = count_distinct_across_words(passage_df, scaffolds[[passage_name]], hesitation),
+    distinct_misprod     = count_errors_by_word(passage_x_scaffold, misprod),
+    # distinct_ins_dup     = count_without_sequences_beyond_length_n(summary, streaks, "ins_dup", n = 6),
+    # distinct_word_stress = count_distinct(passage_df, scaffolds[[passage_name]], word_stress),
+    distinct_hesitation  = count_errors_by_word(passage_x_scaffold, hesitation),
 
     hes_after_misprod    = count_a_b_sequences(passage_df, misprod, hesitation, prior_context = 4),
     hes_after_err        = count_a_b_sequences(passage_df, misprod:word_stress, hesitation, prior_context = 4), # all the error types not associated with speed or fluency
