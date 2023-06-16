@@ -338,10 +338,10 @@ error_summary <- function(passage_df, passage_name) {
   streaks <- error_streak_lengths(passage_df)
   passage_x_scaffold <- cbind(scaffolds[[passage_name]], passage_df)
   return(summary %>% cbind(
-    distinct_misprod     = count_errors_by_word(passage_x_scaffold, misprod),
+    words_with_misprod   = count_errors_by_word(passage_x_scaffold, misprod),
     # distinct_ins_dup     = count_without_sequences_beyond_length_n(summary, streaks, "ins_dup", n = 6),
     # distinct_word_stress = count_distinct(passage_df, scaffolds[[passage_name]], word_stress),
-    distinct_hesitation  = count_errors_by_word(passage_x_scaffold, hesitation),
+    words_with_hes       = count_errors_by_word(passage_x_scaffold, hesitation),
 
     hes_after_misprod    = count_a_b_sequences(passage_df, misprod, hesitation, prior_context = 4),
     hes_after_err        = count_a_b_sequences(passage_df, misprod:word_stress, hesitation, prior_context = 4), # all the error types not associated with speed or fluency
@@ -365,8 +365,8 @@ status_message <- function(passage_name, participant_id) {
   message(status)
 }
 
-append_per_syllable_rates <- function(error_df, count) {
-  mutate(error_df, across(misprod:uncorrected_errors, \(x) x / count, .names = "{.col}_rate"))
+append_rates <- function(error_df, colrange, count) {
+  mutate(error_df, across({{colrange}}, \(x) x / count, .names = "{.col}_rate"))
 }
 
 error_summary_with_metadata <- function(passage_name, participant_id, dir_root) {
@@ -377,7 +377,8 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
     complain_when_invalid(participant_id, passage_name) %>%
     error_summary(passage_nickname) %>%
-    append_per_syllable_rates(syllable_counts[[passage_nickname]]) # then errors per syllable- TODO change to per word?
+    append_rates(misprod:elongation, syllable_counts[[passage_nickname]]) %>% # then errors per syllable
+    append_rates(starts_with("words_with"), word_counts[[passage_nickname]])  # then errors per word, where applicable
 
   return(cbind(
     id = participant_id, # pre-pose an id column
