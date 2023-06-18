@@ -138,8 +138,15 @@ into_dict <- function(sequence, f, env = new.env()) {
 tally_up <- function(df, col) # how many unique values in col?
   df[[col]] %>% unique %>% length
 
-scaffolds       = into_dict(titles, \(x) read_xlsx(scaffolds_path, sheet = x)) # syntax: scaffolds[[passage_name]]   -> scaffold df for that passage
-word_counts     = into_dict(titles, \(x) tally_up(scaffolds[[x]], "word_id"))  # syntax: word_counts[[passage_name]] -> number of words in that passage
+id_to_int <- function(scaffolds_df)
+  # Instead of using labels like "skunkowlsyllable1" etc, just take the int part
+  mutate(scaffolds_df,
+         across(syllable_id:word_id, ~ as.numeric(str_extract(., "\\d+"))))
+
+# get all scaffolds as a dict, converting syllable_ and word_id into ints
+scaffolds       = into_dict(titles, \(x)
+                            read_xlsx(scaffolds_path, sheet = x) %>% id_to_int) # syntax: scaffolds[[passage_name]]   -> scaffold df for that passage
+word_counts     = into_dict(titles, \(x) tally_up(scaffolds[[x]], "word_id"))  #  syntax: word_counts[[passage_name]] -> number of words in that passage
 syllable_counts = into_dict(titles, \(x) tally_up(scaffolds[[x]], "syllable_id"))
 
 
@@ -173,7 +180,8 @@ passage_name_to_df <- function(passage_name, participant_id, dir_root)
 
 
 ## Counting up totals for a given passage
-get_rows_with_a_one <- function(df) filter(df, if_any(everything(), ~ . == 1))
+count_rows_with_a_one <- function(df)
+  filter(df, if_any(everything(), ~ . == 1)) %>% nrow
 
 complain_when_invalid <- function(passage_df, participant_id, passage_name) {
   report = paste("\n\t\t<< ERROR REPORT", participant_id, "-", passage_name, ">>")
@@ -199,63 +207,28 @@ count_errors_by_type <- function(passage_df)
   errcols(passage_df) %>% map_df(as.numeric) %>% colSums %>% t %>% as.data.frame
 
 count_error_syllables_any_type <- function(passage_df) # grand total, across types
-  passage_df %>%
-    errcols %>% # only the error columns
-    get_rows_with_a_one %>% # only the rows that have an error somewhere
-    nrow # count them
+  errcols(passage_df) %>% count_rows_with_a_one # only count the rows that have an(y) error marked
 
 count_corrected_error_syllables <- function(passage_df)
-  passage_df %>%
-    filter(corrected == 1) %>% # only get corrected rows
-    errcols %>% # now let's only look at their error columns
-    get_rows_with_a_one %>% # only the rows that have an error somewhere
-    nrow
+  # get corrected rows, and count how many have errors
+  filter(passage_df, corrected == 1) %>% count_error_syllables_any_type
 
 count_uncorrected_error_syllables <- function(passage_df)
-  passage_df %>%
-    filter(corrected == 0) %>% # only get uncorrected ones
-    errcols %>% # now let's only look at their error columns
-    get_rows_with_a_one %>% # only the rows that have an error somewhere
+  # as above, but only the uncorrected rows
+  filter(passage_df, corrected == 0) %>% count_error_syllables_any_type
+
+# count_distinct <- function(passage_df, passage_scaffold, error_type)
+#   # Distinct if they don't touch. But if they're in separate words, they can touch.
+#   cbind(passage_scaffold, passage_df) %>% # align scaffold info with annotated syllables
+#     filter({{error_type}} == 1 & (wordOnset == 1 | lag({{error_type}}) != 1)) %>% # an error that's (a) a new word or (b) *not* preceded by an adjacent error
+#     nrow # count them
+
+count_errors_by_word <- function(passage_x_scaffold, error_type) {
+  filter(passage_x_scaffold, {{error_type}} == 1) %>%
+    select(word_id) %>%
+    unique %>%
     nrow
-
-count_distinct <- function(passage_df, passage_scaffold, error_type)
-  # Distinct if they don't touch. But if they're in separate words, they can touch.
-  cbind(passage_scaffold, passage_df) %>% # align scaffold info with annotated syllables
-    filter({{error_type}} == 1 & (wordOnset == 1 | lag({{error_type}}) != 1)) %>% # an error that's (a) a new word or (b) *not* preceded by an adjacent error
-    nrow
-
-count_distinct_across_words <- function(passage_df, passage_scaffold, error_type)
-  # Even if they're in different words, they can't touch
-  cbind(passage_scaffold, passage_df) %>%
-    filter({{error_type}} == 1 & lag({{error_type}}) != 1) %>% # it's an error and the syllable before it isn't
-    nrow
-
-drop_first_syllable <- function(df) slice(df, -1)
-
-drop_until_next_word <- function(df) {
-  df = drop_first_syllable(df) # we don't care about this row we've already compared to
-
-  first_word_onset = match(1, df$wordOnset, nomatch = 0) # first matching index, else 0
-  end_index        = ifelse(first_word_onset == 0, 0, nrow(df)) # the actual end, unless there's no more new words left to check
-
-  return(df[first_word_onset:end_index,])
 }
-
-count_errors_by_word <- function(df, error_type, acc = 0) { # -> int
-  if(nrow(df) == 0) return(acc) # stop: we're at the end of the passage
-  err_on_current_syllable = df[1,] %>% select({{error_type}})
-
-  if(err_on_current_syllable == 1) { # this syllable has this error!
-    acc = acc + 1                    # therefore another word (this one) has this error!
-    rest = drop_until_next_word(df)  # so we skip ahead to the next word
-  } else {
-    rest = drop_first_syllable(df)   # otherwise, no skipping - we just move on to the next syllable
-  }
-
-  # now recurse on rest of passage, with potentially increased accumulator
-  return(count_errors_by_word(rest, {{error_type}}, acc))
-}
-
 
 last_n_rows_are <- function(df, col, n, val) all(df[[col]] %>% tail(n) == val)
 
