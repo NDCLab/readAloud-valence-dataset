@@ -1,6 +1,6 @@
 # readAloud-valence-dataset ReadAloud Task Stimuli Characteristics
 # Author: Jessica M. Alexander
-# Last Updated: 2023-06-08
+# Last Updated: 2023-06-14
 
 # INPUTS
 # Inputs are characteristics of the passages read aloud by participants, specifically:
@@ -30,7 +30,8 @@
 # for the initial poster presentation and preprint.  In response to reviewer comments, the script was updated in
 # April 2023 and those aspects were archived in an older copy of the script, residing within this same folder. In addition,
 # syllable length in the prior version of the script was incorrectly drawn from the length of the lemma; the error
-# has been corrected here.
+# has been corrected here. Lastly, the process to identify frequency and valence values from the respective corpora
+# was refined and missing values were imputed to the corpus median.
 
 
 ### SECTION 1: SETTING UP
@@ -239,7 +240,20 @@ readDat$avgSyllPerWord <- as.numeric(readDat$avgSyllPerWord)
 write.csv(readDat, paste(out_path_readDat, 'analysisStimuli_readDat_', today, '.csv', sep="", collapse=NULL))
 
 
-### SECTION 4: CONFIRM MATCH/MANIPULATED STIMULI CHARACTERISTICS
+### SECTION 4: CALCULATE FULL PASSAGE LENGTHS, ADD TO PASSDAT, CALCULATE RANGE
+for(u in 1:nrow(passDat)){
+  passage <- passDat$passage[u]
+  passDatTemp <- readDat[which(readDat$passage==passage),]
+  lengthSyll <- sum(passDatTemp$lengthSyll)
+  lengthWord <- sum(passDatTemp$lengthWord)
+  passDat$lengthSyll[u] <- lengthSyll
+  passDat$lengthWord[u] <- lengthWord
+}
+summary(passDat$lengthWord)
+summary(passDat$lengthSyll)
+
+
+### SECTION 5: CONFIRM MATCH/MANIPULATED STIMULI CHARACTERISTICS
 #FREQUENCY: matched
 ggplot(data=readDat, aes(x=position, y=avgFreq, fill=valence)) + geom_boxplot()
 summary(aov(avgFreq ~ position * valence, data=readDat))
@@ -247,6 +261,8 @@ summary(aov(avgFreq ~ position * valence, data=readDat))
 #VALENCE: manipulated
 ggplot(data=readDat, aes(x=position, y=avgVal, fill=valence)) + geom_boxplot()
 summary(aov(avgVal ~ position * valence, data=readDat))
+summary(readDat$avgVal[which(readDat$valence=="pos")])
+summary(readDat$avgVal[which(readDat$valence=="neg")])
 
 #FLESCH: matched
 ggplot(data=readDat, aes(x=position, y=flesch, fill=valence)) + geom_boxplot()
@@ -265,7 +281,7 @@ ggplot(data=readDat, aes(x=position, y=avgSyllPerWord, fill=valence)) + geom_box
 summary(aov(avgSyllPerWord ~ position * valence, data=readDat))
 
 
-### SECTION 5: PASSAGE CHARACTERISTICS PLOTS
+### SECTION 6: PASSAGE CHARACTERISTICS PLOTS
 readDat$lengthWordPlot <- readDat$lengthWord * c(-1,1) #shift preswitch word length to negative
 readDat$avgFreqPlot <- readDat$avgFreq * c(-1,1) #shift preswitch word frequency to negative
 readDat$valCenterPlot <- (5.2-readDat$avgVal) * -1 #add distance from median for plot #1 color
