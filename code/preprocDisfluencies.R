@@ -93,7 +93,7 @@
 ##
 ### --- IO information --- ###
 
-DEBUG_MODE = FALSE
+DEBUG_MODE = TRUE
 
 library(readxl) # read_xlsx
 library(stringr) # str_extract
@@ -221,6 +221,99 @@ count_errors_by_word <- function(passage_x_scaffold, error_type)
   filter(passage_x_scaffold, {{error_type}} == 1) %>% # syllables with this error
   tally_up(word_id)
 
+colnames_from_range <- function(df, colrange)
+  colnames(select(df, {{colrange}}))
+
+append_lookback <- function(df, col, lookback_index)
+  # Add a new column (e.g. prev_misprod4) representing the value of e.g. misprod, four rows prior.
+  # This is useful for hunting for patterns of errors in a particular sequence
+  mutate(df,
+         "prev_{col}{lookback_index}" := lag(df[[col]], n = lookback_index))
+
+append_lookback_multicol <- function(df, colrange, lookback_index) {
+  # for every column in passed range, create a new column looking back at the indexth row for that column
+  col_list = colnames_from_range(df, {{colrange}})
+
+  reduce(col_list,
+         \(df_acc, colname) append_lookback(df_acc, {{colname}}, lookback_index),
+         .init = df)
+}
+
+append_lookbacks_multicol <- function(df, colrange, lookback_count)
+  # Use append_lookback_multicol successively on the same df, on each index from 1..lookback_count
+  # Ex: col=hesitation, lookback_count=3 will add a column for hesitations three rows prior,
+  # another for hesitations two rows prior, and another for hesitations one row prior
+  reduce(1:lookback_count,
+         partial(append_lookback_multicol, colrange = {{colrange}}),
+         .init = df)
+
+
+a_b_sequence_lookback <- function(df, errtypes_a, errtypes_b, prior_context = 1) {
+  # a: LHS errors; b: RHS errors; context: how many rows back we can look for LHS errors
+
+  lhs_cols = colnames_from_range(df, {{errtypes_a}})
+  rhs_cols = colnames_from_range(df, {{errtypes_b}})
+
+  lookbacks_regex = lhs_cols %>% paste(collapse = "|") %>% paste("prev_(", ., ").*", sep = "") # as in prev_(misprod|hesitation).*
+
+  df_with_lhs_lookbacks = append_lookbacks_multicol(df, {{errtypes_a}}, prior_context)
+
+
+  filter(df_with_lhs_lookbacks,
+         if_any(rhs_cols, ~ . == 1) & if_any(matches(lookbacks_regex), ~ . == 1))
+}
+
+count_a_b_sequences_lookback <- function(df, errtypes_a, errtypes_b, prior_context = 1)
+  a_b_sequence_lookback(df, {{errtypes_a}}, {{errtypes_b}}, prior_context) %>% nrow
+
+
+# All the above, with lookaheads
+# seems logically equivalent, but in case
+append_lookahead <- function(df, col, lookahead_index)
+  # Add a new column (e.g. next_misprod4) representing the value of e.g. misprod, four rows ahead.
+  # This is useful for hunting for patterns of errors in a particular sequence
+  mutate(df,
+         "next_{col}{lookahead_index}" := lead(df[[col]], n = lookahead_index))
+
+append_lookahead_multicol <- function(df, colrange, lookahead_index) {
+  # for every column in passed range, create a new column looking forward at the indexth row for that column
+  col_list = colnames_from_range(df, {{colrange}})
+
+  reduce(col_list,
+         \(df_acc, colname) append_lookahead(df_acc, {{colname}}, lookahead_index),
+         .init = df)
+}
+
+append_lookaheads_multicol <- function(df, colrange, lookahead_count)
+  # Use append_lookahead_multicol successively on the same df, on each index from 1..lookahead_count
+  # Ex: col=hesitation, lookahead_count=3 will add a column for hesitations three rows ahead,
+  # another for hesitations two rows ahead, and another for hesitations one row ahead
+  reduce(1:lookahead_count,
+         partial(append_lookahead_multicol, colrange = {{colrange}}),
+         .init = df)
+
+
+a_b_sequence_lookahead <- function(df, errtypes_a, errtypes_b, forward_context = 1) {
+  # a: LHS errors; b: RHS errors; context: how many rows forward we can look for RHS errors
+
+  lhs_cols = colnames_from_range(df, {{errtypes_a}})
+  rhs_cols = colnames_from_range(df, {{errtypes_b}})
+
+  lookaheads_regex = rhs_cols %>% paste(collapse = "|") %>% paste("next_(", ., ").*", sep = "") # as in next_(misprod|hesitation).*
+
+  df_with_rhs_lookaheads = append_lookaheads_multicol(df, {{errtypes_b}}, forward_context)
+
+
+  filter(df_with_rhs_lookaheads,
+         if_any(rhs_cols, ~ . == 1) & if_any(matches(lookaheads_regex), ~ . == 1))
+}
+
+count_a_b_sequences_lookahead <- function(df, errtypes_a, errtypes_b, forward_context = 1)
+  a_b_sequence_lookahead(df, {{errtypes_a}}, {{errtypes_b}}, forward_context) %>% nrow
+
+
+
+
 error_summary <- function(passage_df, passage_name) {
   # a quick repair instead instead of an error: so we don't have to halt everything and start over
   if (any(passage_df == FALSE)) {
@@ -232,6 +325,10 @@ error_summary <- function(passage_df, passage_name) {
   return(summary %>% cbind(
     words_with_misprod   = count_errors_by_word(passage_x_scaffold, misprod),
     words_with_hes       = count_errors_by_word(passage_x_scaffold, hesitation),
+    hes_with_misprod_in_previous_syllables = count_a_b_sequences_lookback(passage_df, misprod, hesitation, prior_context = 5),
+    hes_with_misprod_in_next_syllables     = count_a_b_sequences_lookahead(passage_df, hesitation, misprod, forward_context = 5),
+    misprod_with_hes_in_previous_syllables = count_a_b_sequences_lookback(passage_df, hesitation, misprod, prior_context = 5),
+    misprod_with_hes_in_next_syllables     = count_a_b_sequences_lookahead(passage_df, misprod, hesitation, forward_context = 5),
     errors               = count_error_syllables_any_type(passage_df),
     corrections          = count_corrected_error_syllables(passage_df),
     uncorrected_errors   = count_uncorrected_error_syllables(passage_df),
@@ -259,8 +356,10 @@ error_summary_with_metadata <- function(passage_name, participant_id, dir_root) 
     passage_name_to_df(passage_name, participant_id, dir_root) %>%
     complain_when_invalid(participant_id, passage_name) %>%
     error_summary(passage_nickname) %>%
-    append_rates(misprod:elongation, syllable_counts[[passage_nickname]]) %>% # then errors per syllable
-    append_rates(starts_with("words_with"), word_counts[[passage_nickname]])  # then errors per word, where applicable
+    append_rates(misprod:elongation, syllable_counts[[passage_nickname]]) %>%    # then errors per syllable
+    append_rates(starts_with("words_with"), word_counts[[passage_nickname]]) %>% # then errors per word, where applicable
+    append_rates(starts_with("hes_with"), syllable_counts[[passage_nickname]]) %>% # rates of misproductions relative to a central hesitation (by syllables)
+    append_rates(starts_with("misprod_with"), syllable_counts[[passage_nickname]]) # rates of hesitations relative to a central misproduction (by syllables)
 
   return(cbind(
     id = participant_id, # pre-pose an id column
