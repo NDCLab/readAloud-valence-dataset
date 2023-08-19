@@ -305,7 +305,7 @@ a_b_sequence_lookahead <- function(df, errtypes_a, errtypes_b, forward_context =
 
 
   filter(df_with_rhs_lookaheads,
-         if_any(rhs_cols, ~ . == 1) & if_any(matches(lookaheads_regex), ~ . == 1))
+         if_any(lhs_cols, ~ . == 1) & if_any(matches(lookaheads_regex), ~ . == 1))
 }
 
 count_a_b_sequences_lookahead <- function(df, errtypes_a, errtypes_b, forward_context = 1)
