@@ -27,7 +27,12 @@ Data was collected at Florida International University from January-June 2022.  
 ## Data Releases
 **2022-11-22:** [osf.io/pn2hu](https://osf.io/pn2hu/)
 
-Also, see the associated [analysis repo](https://github.com/NDCLab/readAloud-valence-alpha) for the initial poster and preprint from this dataset.
+Also, see the associated [analysis repo](https://github.com/NDCLab/readAloud-valence-alpha) for the initial poster and paper from this dataset.
+
+
+## How to Cite
+If you use the data posted to OSF, kindly cite as:
+> Alexander, J. M., & Buzzell, G. A. (2023). Emotional context and predictability in naturalistic reading aloud. Emotion, 10.1037/emo0001298. Advance online publication.
 
 
 ## Contributors
