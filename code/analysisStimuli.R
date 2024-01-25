@@ -51,9 +51,12 @@ today <- Sys.Date()
 today <- format(today, "%Y%m%d")
 
 #set up directories for input/output
-main_dataset <- '/Users/jalexand/github/readAloud-valence-dataset/'
-out_path_readDat <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/'
-out_path_plots <- '/Users/jalexand/github/readAloud-valence-alpha/'
+# main_dataset <- '/Users/jalexand/github/readAloud-valence-dataset/'
+main_dataset <- '~/Documents/ndclab/analysis-sandbox/rwe-dataset/'
+# out_path_readDat <- '/Users/jalexand/github/readAloud-valence-dataset/derivatives/'
+out_path_readDat <- paste(main_dataset, 'derivatives', sep = '')
+# out_path_plots <- '/Users/jalexand/github/readAloud-valence-alpha/'
+out_path_plots <- paste(out_path_readDat, 'plots/')
 
 #load input files
 passage_list <- list.files(paste(main_dataset, 'materials/readAloud-ldt/stimuli/readAloud/liwc-analysis/input', sep="", collapse="NULL"))
@@ -154,10 +157,10 @@ for(j in 1:length(passages)){
   postSwitchVal <-substr(switchType, 5, 7) #identify valence of postswitch passage half (pos or neg)
   preQuestion <- as.numeric(questionVal==preSwitchVal) #mark as 1 if question came from first passage half, 0 otherwise
   postQuestion <- as.numeric(questionVal==postSwitchVal) #mark as 1 if question came from second passage half, 0 otherwise
-      
+
   #extract data from switchDat
   switchWord <- switchDat$switchWord[match(passage, switchDat$passage)] #identify passage switch word
-  
+
   #extract data from scaffDat
   scaffSwitch <- match("switch", scaffDat$wordGroup) #identify index of start of passage switch word in scaffDat
   preLenSyll <- scaffSwitch - 1 #identify number of syllables in first passage half
@@ -166,7 +169,7 @@ for(j in 1:length(passages)){
   postLenWord <- sum(scaffDat$wordOnset) - preLenWord #identify number of words in second passage half
   preSyllPerWord <- preLenSyll/preLenWord
   postSyllPerWord <- postLenSyll/postLenWord
-  
+
   #extract passage word list
   passWords <- passageDat[,1:2] #pull word list
   for(a in 1:length(passWords$stimWord)){        #correct apostrophes (curly to straight)
@@ -175,7 +178,7 @@ for(j in 1:length(passages)){
   }
   passWords$stimWord <- tolower(passWords$stimWord) #shift word list to lowercase to match SUBTLEXUS
   passWords$lemma <- lemmatize_words(passWords$stimWord) #lemmatize word list
-  
+
   #add frequency data
   passWords$freq <- rep(0, nrow(passWords)) #initialize column to hold frequency data
   for(f in 1:nrow(passWords)){
@@ -187,7 +190,7 @@ for(j in 1:length(passages)){
       passWords$freq[f] <- manualLemma$freq[match(passWords$lemma[f], manualLemma$lemma)]
     } else {passWords$freq[f] <- median(subtlexus$Lg10WF)}                                #impute median value for non-matches
   }
-  
+
   #add valence data
   passWords$val <- rep(0, nrow(passWords)) #initialize column to hold valence data
   for(v in 1:nrow(passWords)){
@@ -202,15 +205,15 @@ for(j in 1:length(passages)){
 
   #identify index of passage switch word in passWords matrix
   passSwitch <- match(switchWord, passWords$stimWord)
-  
+
   #calculate average frequency
   preFreqAvg <- mean(passWords$freq[1:(passSwitch-1)]) #calculate mean frequency for preswitch half
   postFreqAvg <- mean(passWords$freq[passSwitch:length(passWords$freq)]) #calculate mean frequency for postswitch half
-  
+
   #calculate average valence
   preValAvg <- mean(passWords$val[1:(passSwitch-1)]) #calculate mean valence for preswitch half
   postValAvg <- mean(passWords$val[passSwitch:length(passWords$val)]) #calculate mean valence for postswitch half
-  
+
   #create vectors for each half and add to readDat
   vectorPre <- c(passage, switchType, "pre", preSwitchVal, preLenSyll, preLenWord, preSyllPerWord, preFreqAvg, preValAvg, preQuestion)
   readDat[nrow(readDat) + 1,] <- c(vectorPre)
@@ -238,6 +241,7 @@ readDat$avgSyllPerWord <- as.numeric(readDat$avgSyllPerWord)
 
 #output readDat
 write.csv(readDat, paste(out_path_readDat, 'analysisStimuli_readDat_', today, '.csv', sep="", collapse=NULL))
+out_path_readDat_csv <- paste(out_path_readDat, 'analysisStimuli_readDat_', today, '.csv', sep="", collapse=NULL)
 
 
 ### SECTION 4: CALCULATE FULL PASSAGE LENGTHS, ADD TO PASSDAT, CALCULATE RANGE
@@ -297,7 +301,7 @@ plot1 <- ggplot(data=readDat, aes(x=passage, y=lengthWordPlot, fill=valCenterPlo
         panel.grid.minor = element_blank(), panel.background = element_blank(),
         legend.text = element_text(color="black"), legend.title = element_text(color="black")) +
   scale_fill_gradient(low="#202A44", high="#E1AD01", name="Valence", breaks=c(-0.5, 0, 0.5, 1.0), labels=c("4.7", "5.2", "5.7", "6.2")) +
-  ylab('Length in Words') + 
+  ylab('Length in Words') +
   coord_flip(ylim=c(-105,105)) +
   scale_y_continuous(labels=c("100", "50", "0", "50", "100"))
 #cvd_grid(plot1) #test colors

@@ -108,8 +108,13 @@ error_types_idiomatic = c(
   "filled_pause", "hesitation", "elongation", "corrected"
 )
 
+# base = "~/Documents/ndclab/rwe-analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
+base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
+
 # if we're in debug mode, write output dataframes to disk as they are made
-incremental_writeout = if(DEBUG_MODE) "incremental-passages_debugging" else NULL
+incremental_writeout = if(DEBUG_MODE)
+  paste(base, "incremental-passages_debugging", sep = '/') else
+    NULL
 
 if(DEBUG_MODE && !fs::is_dir(incremental_writeout))
   stop(
@@ -124,8 +129,6 @@ dummy <- function(.) NA # ignore argument, just return dummy value
 fill_dummy <- function(df, cols) cbind(df, setNames(lapply(cols, dummy), cols)) # fill dummy value into all listed cols
 
 ## Calculations about the passages themselves, for things like word ratios
-# base = "~/Documents/ndclab/analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
-base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
 timestamp = now("America/New_York") %>% format("%Y%m%d_%I%M%P")
 scaffolds_path = paste(base, "code/scaffolds.xlsx", sep = '/')
 titles = excel_sheets(scaffolds_path) # antarctica ... vegas
