@@ -1,7 +1,7 @@
 # Reading in reconciled Excels, summarizing the errors of each, and writing that
 # to a new CSV
 # Luc Sahar and Jessica M. Alexander -- NDCLab, Florida International University
-# last updated 2024-01-25
+# last updated 2024-01-26
 # This version is intended for word-level operations
 
 # NB passages "sun" and "broccoli" as coded contain errors. Namely, broccoli had
@@ -47,6 +47,8 @@
 #                 label -- the string identifying a file -- rather than the file
 #                 itself or its contents
 #       - df: dataframe, the R structure
+#       - passage_df: a dataframe for a participant's reading of a given
+#                 passage, with that passage's scaffolding included
 #       - DEBUG_MODE: a 'flag' which when set to TRUE enables features including
 #                 increased verbosity and incremental outputs (in case the
 #                 program fails before creating the intended file per below)
@@ -109,9 +111,9 @@ error_types_idiomatic = c(
   "filled_pause", "hesitation", "elongation", "corrected"
 )
 
-base = "~/Documents/ndclab/rwe-analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
-# base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
-passage_dir = "~/Documents/ndclab/rwe-analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed/error-coding/test"
+# base = "~/Documents/ndclab/rwe-analysis-sandbox/github-structure-mirror/readAloud-valence-dataset"
+base = "/home/data/NDClab/datasets/readAloud-valence-dataset"
+# passage_dir = "~/Documents/ndclab/rwe-analysis-sandbox/github-structure-mirror/readAloud-valence-dataset/derivatives/preprocessed/error-coding/test"
 
 # if we're in debug mode, write output dataframes to disk as they are made
 incremental_writeout = if(DEBUG_MODE)
@@ -127,9 +129,6 @@ filler = data.frame( # what we'll use when data is empty or invalid, until the f
   logical(7), # FALSE 7 times
   row.names = error_types_idiomatic[1:7] # misprod...elongation
 ) %>% t %>% as.data.frame
-
-dummy <- function(.) NA # ignore argument, just return dummy value
-fill_dummy <- function(df, cols) cbind(df, setNames(lapply(cols, dummy), cols)) # fill dummy value into all listed cols
 
 ## Calculations about the passages themselves, for things like word ratios
 timestamp = now("America/New_York") %>% format("%Y%m%d_%I%M%P")
@@ -175,7 +174,7 @@ build_full_passage_path <- function(passage_nickname, dir_root, participant_id)
     passage_nickname,
     '.xlsx')
 
-passage_path_to_df <- function(passage_path) {
+read_error_data_from_path <- function(passage_path) {
   df = data.frame(
     read_xlsx(passage_path)[2:9,], # get only the rows misprod ... corrected
     row.names = error_types_idiomatic
@@ -189,12 +188,12 @@ passage_name_to_df <- function(passage_nickname, participant_id, dir_root)
   cbind(scaffolds[[passage_nickname]], # include our scaffolds
         passage_nickname %>%
           build_full_passage_path(dir_root, participant_id) %>% # path
-          passage_path_to_df
+          read_error_data_from_path
   )
 
 ## Counting up totals for a given passage
-count_rows_with_a_one <- function(df)
-  filter(df, if_any(everything(), ~ . == 1)) %>% nrow
+# count_rows_with_a_one <- function(df)
+#   filter(df, if_any(everything(), ~ . == 1)) %>% nrow
 
 complain_when_invalid <- function(passage_df, participant_id, passage_nickname) {
   report = paste("\n\t\t<< ERROR REPORT", participant_id, "-", passage_nickname, ">>")
@@ -215,8 +214,7 @@ complain_when_invalid <- function(passage_df, participant_id, passage_nickname) 
 }
 
 
-
-collapse_by_word <- function(scaffolded_df) {
+collapse_by_word <- function(passage_df) {
   # for each word in the passage, consider it an error when any of its syllables
   # is marked as such
 
@@ -225,13 +223,12 @@ collapse_by_word <- function(scaffolded_df) {
   # if yes TRUE
   # else FALSE
 
-  scaffolded_df %>%
+  passage_df %>%
     mutate(across(misprod:corrected,
-                  ~ as.logical(as.integer(.)))) %>%
-    group_by(word_id) %>%
-    summarize(across(misprod:corrected, ~ any(.)))
+                  ~ as.logical(as.integer(.)))) %>% # make booleans
+    group_by(word_id) %>%                           # collapse as words
+    summarize(across(misprod:corrected, ~ any(.)))  # error on this word or not?
 }
-
 
 
 get_frequency_for_word <- function(word) {
@@ -249,10 +246,10 @@ get_frequencies_for_passage <- function(nickname)
 
 passage_frequencies = into_dict(titles, get_frequencies_for_passage)
 
-append_words_and_frequencies <- function(collapsed_scaffolded_df, nickname)
+append_words_and_frequencies <- function(collapsed_df, nickname)
   cbind(word           = word_lists[[nickname]],
         log10frequency = passage_frequencies[[nickname]],
-        collapsed_scaffolded_df)
+        collapsed_df)
 
 
 
@@ -278,7 +275,6 @@ append_words_and_frequencies <- function(collapsed_scaffolded_df, nickname)
 
 colnames_from_range <- function(df, colrange)
   colnames(select(df, {{colrange}}))
-
 
 append_lookback <- function(df, col, lookback_index)
   # Add a new column (e.g. prev_misprod4) representing the value of e.g. misprod, four rows prior.
@@ -315,16 +311,12 @@ a_b_sequence_lookback <- function(df, errtypes_a, errtypes_b, prior_context = 1)
   df_with_lhs_lookbacks = append_lookbacks_multicol(df, {{errtypes_a}}, prior_context)
 
 
-  filter(df_with_lhs_lookbacks,
-         if_any(rhs_cols, ~ . == 1) & if_any(matches(lookbacks_regex), ~ . == 1))
+  mutate(df_with_lhs_lookbacks,
+         "any_prior_{{errtypes_a}}" := if_any(matches(lookbacks_regex), ~ . == 1),
+         "{{errtypes_b}}_with_any_prior_{{errtypes_a}}" := if_any(rhs_cols, ~ . == 1) & if_any(matches(lookbacks_regex), ~ . == 1))
 }
 
-count_a_b_sequences_lookback <- function(df, errtypes_a, errtypes_b, prior_context = 1)
-  a_b_sequence_lookback(df, {{errtypes_a}}, {{errtypes_b}}, prior_context) %>% nrow
-
-
 # All the above, with lookaheads
-# seems logically equivalent, but in case
 append_lookahead <- function(df, col, lookahead_index)
   # Add a new column (e.g. next_misprod4) representing the value of e.g. misprod, four rows ahead.
   # This is useful for hunting for patterns of errors in a particular sequence
@@ -359,63 +351,63 @@ a_b_sequence_lookahead <- function(df, errtypes_a, errtypes_b, forward_context =
 
   df_with_rhs_lookaheads = append_lookaheads_multicol(df, {{errtypes_b}}, forward_context)
 
-
-  filter(df_with_rhs_lookaheads,
-         if_any(lhs_cols, ~ . == 1) & if_any(matches(lookaheads_regex), ~ . == 1))
+  mutate(df_with_rhs_lookaheads,
+         "any_upcoming_{{errtypes_b}}" := if_any(matches(lookaheads_regex), ~ . == 1),
+         "{{errtypes_a}}_with_any_upcoming_{{errtypes_b}}" := if_any(lhs_cols, ~ . == 1) & if_any(matches(lookaheads_regex), ~ . == 1)
+  )
 }
 
-count_a_b_sequences_lookahead <- function(df, errtypes_a, errtypes_b, forward_context = 1)
-  a_b_sequence_lookahead(df, {{errtypes_a}}, {{errtypes_b}}, forward_context) %>% nrow
+# we just want from lookaheads and lookbacks:
+# was there ANY in previous 5
+# psuedocode: any(prev_*)
+# likewise for next
 
+# & all of this for misprod->hes and hes->misprod
 
+# so we add four columns:
+# is it a misprod with preceding hes?
+# is it a misprod with following hes?
+# is it a hes with preceding misprod?
+# is it a hes with following misprod?
 
+append_pes_annotation_cols <- function(df, errtypes_a, errtypes_b, forward_context = 1, prior_context = 1) {
+  # a: LHS errors; b: RHS errors; context: how many rows forward we can look for RHS errors
 
-error_summary <- function(passage_df, passage_name) {
-  # a quick repair instead instead of an error: so we don't have to halt everything and start over
-  if (any(passage_df == FALSE)) {
-    return(passage_df %>% fill_dummy(c("errors", "corrections", "uncorrected_errors", "skipped_end")))
-  }
+  lhs_cols = colnames_from_range(df, {{errtypes_a}})
+  rhs_cols = colnames_from_range(df, {{errtypes_b}})
 
-  summary <- count_errors_by_type(passage_df)
-  # passage_x_scaffold <- cbind(scaffolds[[passage_name]], passage_df)
-  return(summary %>% cbind(
-    words_with_misprod   = count_errors_by_word(passage_df, misprod),
-    words_with_hes       = count_errors_by_word(passage_df, hesitation),
-    hes_with_misprod_in_previous_syllables = count_a_b_sequences_lookback(passage_df, misprod, hesitation, prior_context = 5),
-    hes_with_misprod_in_next_syllables     = count_a_b_sequences_lookahead(passage_df, hesitation, misprod, forward_context = 5),
-    misprod_with_hes_in_previous_syllables = count_a_b_sequences_lookback(passage_df, hesitation, misprod, prior_context = 5),
-    misprod_with_hes_in_next_syllables     = count_a_b_sequences_lookahead(passage_df, misprod, hesitation, forward_context = 5),
-    errors               = count_error_syllables_any_type(passage_df),
-    corrections          = count_corrected_error_syllables(passage_df),
-    uncorrected_errors   = count_uncorrected_error_syllables(passage_df),
-    skipped_end          = all(passage_df$omit %>% tail(10) == 1)
-  ))
+  lookaheads_regex = rhs_cols %>% paste(collapse = "|") %>% paste("next_(", ., ").*", sep = "") # as in next_(misprod|hesitation).*
+  df_with_rhs_lookaheads = append_lookaheads_multicol(df, {{errtypes_b}}, forward_context)
+
+  lookbacks_regex = lhs_cols %>% paste(collapse = "|") %>% paste("prev_(", ., ").*", sep = "") # as in prev_(misprod|hesitation).*
+  df_with_lhs_lookbacks = append_lookbacks_multicol(df, {{errtypes_a}}, prior_context)
+
+  df_with_rhs_lookaheads_and_lhs_lookbacks =
+    df %>%
+    a_b_sequence_lookahead({{errtypes_a}}, {{errtypes_b}}, forward_context) %>%
+    a_b_sequence_lookback({{errtypes_a}}, {{errtypes_b}}, prior_context)
+
+  return(df_with_rhs_lookaheads_and_lhs_lookbacks)
 }
-
 
 status_message <- function(passage_name, participant_id) {
-  status = paste("Generating summary from participant ", participant_id, "'s ",
+  status = paste("Generating word errors from participant ", participant_id, "'s ",
                  passage_name, " passage...",
                  sep = '')
   message(status)
 }
 
-append_rates <- function(error_df, colrange, count) {
-  mutate(error_df, across({{colrange}}, \(x) x / count, .names = "{.col}_rate"))
-}
-
 error_summary_with_metadata <- function(passage_nickname, participant_id, dir_root) {
-  #passage_nickname = fs::path_ext_remove(passage_name) # chomp 'bees.xlsx' to 'bees', e.g.
   if(DEBUG_MODE) status_message(passage_nickname, participant_id)
 
   summary =
     passage_name_to_df(passage_nickname, participant_id, dir_root) %>%
-    complain_when_invalid(participant_id, passage_nickname) %>%
-    error_summary(passage_nickname) %>%
-    append_rates(misprod:elongation, syllable_counts[[passage_nickname]]) %>%    # then errors per syllable
-    append_rates(starts_with("words_with"), word_counts[[passage_nickname]]) %>% # then errors per word, where applicable
-    append_rates(starts_with("hes_with"), syllable_counts[[passage_nickname]]) %>% # rates of misproductions relative to a central hesitation (by syllables)
-    append_rates(starts_with("misprod_with"), syllable_counts[[passage_nickname]]) # rates of hesitations relative to a central misproduction (by syllables)
+    # complain_when_invalid(participant_id, passage_nickname) %>%
+    collapse_by_word %>%
+    append_words_and_frequencies(passage_nickname) %>%
+    append_pes_annotation_cols(misprod, hesitation, forward_context = 5, prior_context =  5) %>%
+    append_pes_annotation_cols(hesitation, misprod, forward_context = 5, prior_context =  5) %>%
+    select(word:corrected, matches("(^|.*_)any.*[_$]")) # any_prior_misprod, any_following_hesitation, any_prior_hesitation, any_following_misprod)
 
   return(cbind(
     id = participant_id, # pre-pose an id column
@@ -424,11 +416,13 @@ error_summary_with_metadata <- function(passage_nickname, participant_id, dir_ro
   ))
 }
 
-
 # All passages for a participant
 generate_summary_for_each_passage_with_metadata <- function(dir_root, participant_id, write_to = incremental_writeout) {
-  df = build_participant_dirname(dir_root, participant_id) %>% dir %>% # passage name _with_ the extension
-      map_df(error_summary_with_metadata, participant_id, dir_root)
+  df =
+    build_participant_dirname(dir_root, participant_id) %>% # identify their folder
+    dir %>% # pick out: which passages did they actually read?
+    fs::path_ext_remove() %>% # take them _without_ the extension
+    map_df(error_summary_with_metadata, participant_id, dir_root) # glue that together into a df
 
   if (!is.null(write_to) && fs::is_dir(write_to)) { # incremental CSV: just this participant, with all their passages
     outfile_debug = paste(write_to, "/", participant_id, "_", timestamp, '.csv', sep = "")
@@ -437,9 +431,6 @@ generate_summary_for_each_passage_with_metadata <- function(dir_root, participan
 
   return(df)
 }
-
-summarize_numeric_cols <- function(df, f, label = as.character(substitute(f))) # currently unused- previously in function below with mean and sd
-  cbind(id = label, reframe(df, across(where(is.numeric), f)))
 
 # Now, for each participant under a directory, each identified by the form sub_XXXXXX_reconciled,
 # call generate_summary_for_each_passage_with_metadata(the_parentdir_of_all_those, that_id)
@@ -461,7 +452,7 @@ label = "disfluencies_subject-x-passage_"
 outpath <- paste(sep = "", annotations_base, '/', label, timestamp, ".csv")
 # e.g. "./some/path/disfluencies_20230520_1240pm.csv"
 
-github_root %>%
+github_root %>% # passage_dir %>%
   summarize_errors_in_subdirectories("^sub-\\d{6}_reconciled$") %>%
   write_csv(outpath)
 
